@@ -4,20 +4,8 @@
     "moduleDetection": "force",
     "target": "ESNext",
     "module": "ESNext",
-    "outDir": "js",
-    "baseUrl": "./",
+    "outDir": "dist",
     "rootDir": ".",
-    "paths": {
-      "@fluid/*": [
-        "./FluidEngine/src/*"
-      ],
-      "@fluidlib/*": [
-        "./FluidEngine/src/lib/*"
-      ],
-      "@asteroid/*": [
-        "./AsteroidJourney/src/*"
-      ]
-    }
   },
   "exclude": [
     "temp"
