@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { FluidEngine } from "@fluid/FluidEngine";
 import { ChunkIndex, ChunkMeta, ChunkKey, ChunkState, parseChunkKey } from "@fluid/lib/world/chunk/Chunk";
 import { SceneFacade } from "./Scene";

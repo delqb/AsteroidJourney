@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { Viewport } from "@asteroid/components/ViewportComponent";
 import { ViewportBorderWidth } from "@asteroid/components/ViewportBorderWidthComponent";
 import { Resolution } from "@asteroid/components/ResolutionComponent";

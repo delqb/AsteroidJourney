@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { MovementControl } from "@asteroid/components/MovementControlComponent";
 import { Acceleration } from "@asteroid/components/AccelerationComponent";
 import { Velocity } from "@asteroid/components/VelocityComponent";

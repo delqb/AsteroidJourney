@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { FluidEngine } from "@fluid/FluidEngine";
 import { WorldContext } from "../world/World";
 import { CanvasRenderer } from "./renderer/Renderer";

@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { Fluid } from "@fluid/Fluid";
 import { AABB } from "@fluid/lib/spatial/AABB";
 import { OBB } from "@fluid/lib/spatial/OBB";

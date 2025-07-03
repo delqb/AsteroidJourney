@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { Fluid } from "@fluid/Fluid";
 import { Transform } from "@fluid/lib/spatial/Transform";
 

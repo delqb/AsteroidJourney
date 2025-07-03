@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { CursorTranslate } from "@asteroid/components/CursorTranslateComponent";
 import { ScreenPoint } from "@asteroid/components/ScreenPointComponent";
 import { Position } from "@asteroid/components/PositionComponent";

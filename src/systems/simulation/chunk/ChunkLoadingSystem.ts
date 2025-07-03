@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { RenderCenter } from "@asteroid/components/RenderCenterComponent";
 import { Position } from "@asteroid/components/PositionComponent";
 import { WorldContext } from "@asteroid/world/World";

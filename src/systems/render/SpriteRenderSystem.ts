@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { Position } from "@asteroid/components/PositionComponent";
 import { Sprite } from "@asteroid/components/SpriteComponent";
 import { Fluid } from "@fluid/Fluid";

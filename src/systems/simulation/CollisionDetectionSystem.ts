@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { BoundingBox, BoundingBoxComponent } from "@asteroid/components/BoundingBoxComponent";
 import { ChunkOccupancy } from "@asteroid/components/ChunkOccupancyComponent";
 import { FluidEngine } from "@fluid/FluidEngine";

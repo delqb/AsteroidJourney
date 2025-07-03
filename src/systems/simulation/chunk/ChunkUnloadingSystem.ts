@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { Chunk } from "@asteroid/components/ChunkComponent";
 import { WorldContext } from "@asteroid/world/World";
 import { ECSNode } from "@fluid/core/node/Node";

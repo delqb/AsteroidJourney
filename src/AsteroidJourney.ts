@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { ClientContext } from "./client/Client";
 import { CanvasRenderer } from "./client/renderer/Renderer";
 import { Sprite, SpriteComponent } from "./components/SpriteComponent";

@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { FireControl } from "@asteroid/components/FireControlComponent";
 import { Velocity } from "@asteroid/components/VelocityComponent";
 import { Position } from "@asteroid/components/PositionComponent";

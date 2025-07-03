@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { ClientContext } from "@asteroid/client/Client";
 import { Chunk } from "@asteroid/components/ChunkComponent";
 import { ECSNode } from "@fluid/core/node/Node";

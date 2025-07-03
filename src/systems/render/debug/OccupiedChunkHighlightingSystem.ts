@@ -1,3 +1,9 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
 import { ClientContext } from "@asteroid/client/Client";
 import { ChunkOccupancy } from "@asteroid/components/ChunkOccupancyComponent";
 import { RenderCenter } from "@asteroid/components/RenderCenterComponent";
