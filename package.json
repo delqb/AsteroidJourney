@@ -11,7 +11,8 @@
   "scripts": {
     "clean": "rmdir /s /q .\\dist",
     "fluidreload": "npm uninstall fluidengine --no-save && npm install fluidengine",
-    "build": "npm run clean && fluidreload && tsc",
+    "build": "npm run fluidreload && tsc",
+    "cbuild": "npm run clean & build",
     "prepare": "npm run build"
   }
 }
