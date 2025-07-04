@@ -4,13 +4,13 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ClientContext } from "@asteroid/client/Client";
-import { ChunkOccupancy } from "@asteroid/components/ChunkOccupancyComponent";
-import { RenderCenter } from "@asteroid/components/RenderCenterComponent";
-import { ECSNode } from "@fluid/core/node/Node";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { parseChunkKey, getChunkCornerFromIndex } from "@fluid/lib/world/chunk/Chunk";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { parseChunkKey, getChunkCornerFromIndex } from "fluidengine/v0/lib";
+import { ClientContext } from "../../../client/Client";
+import { ChunkOccupancy } from "../../../components/ChunkOccupancyComponent";
+import { RenderCenter } from "../../../components/RenderCenterComponent";
 
 const schema = {
     chunks: ChunkOccupancy

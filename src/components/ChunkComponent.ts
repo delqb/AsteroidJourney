@@ -4,8 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "@fluid/Fluid";
-import { ChunkMeta } from "@fluid/lib/world/chunk/Chunk";
+import { Fluid } from "fluidengine/v0";
+import { ChunkMeta } from "fluidengine/v0/lib";
+
 
 /**
  * Component used to associate an entity with a 'Chunk' instance. 

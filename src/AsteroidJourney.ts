@@ -42,20 +42,20 @@ import {
 } from "./systems";
 import { OccupiedChunkHighlightingSystem } from "./systems/render/debug/OccupiedChunkHighlightingSystem";
 import { WorldContext } from "./world/World";
-import { canvasToImage, loadImage } from "@fluid/lib/utils/ImageUtils";
-import { FluidEngine } from "@fluid/FluidEngine";
-import { Vector2, Vec2 } from "@fluid/lib/spatial/Vector2";
-import { boundedRandom } from "@fluid/lib/utils/MathUtils";
-import { ChunkIndex, ChunkMeta, getChunkCenterFromIndex, createChunk, ChunkState } from "@fluid/lib/world/chunk/Chunk";
+import { Fluid, FluidEngine } from "fluidengine/v0";
+import { ECSEntityId } from "fluidengine/v0/api";
+import { FluidSystemPhase } from "fluidengine/v0/internal";
+import { ChunkIndex, ChunkMeta, getChunkCenterFromIndex, Vector2, createChunk, ChunkState, Vec2, MathUtils, ImageUtils } from "fluidengine/v0/lib";
 import { BoundingBox, createBoundingBox } from "./components/BoundingBoxComponent";
-import { Projectile, ProjectileComponent } from "./components/ProjectileComponent";
 import { Chunk } from "./components/ChunkComponent";
-import { Fluid } from "@fluid/Fluid";
-import { ECSEntityId } from "@fluid/core/entity/EntityId";
 import { ChunkOccupancy } from "./components/ChunkOccupancyComponent";
+import { Projectile } from "./components/ProjectileComponent";
 import { ProjectileSource } from "./components/ProjectileSourceComponent";
 import { Viewport } from "./components/ViewportComponent";
-import { FluidSystemPhase } from "@fluid/impl/core/system/FluidSystemPhase";
+
+const canvasToImage = ImageUtils.canvasToImage,
+    loadImage = ImageUtils.loadImage,
+    boundedRandom = MathUtils.boundedRandom;
 
 function createGlowingStar(spikes, outerRadius, innerRadius, glowRadius) {
     const size = glowRadius * 2;
@@ -150,7 +150,7 @@ function loadImg(assetPath: string) {
 const laserShotCanvas = renderSingleNeonLaserSprite();
 const laserShotTexture = canvasToImage(laserShotCanvas);
 
-export const assetRoot = "/AsteroidJourney/assets";
+export const assetRoot = "/assets";
 export const backgroundTileImage = await loadImg("background/space_background_tile.png");
 export const asteroidImage = await loadImg("asteroid/asteroid1.png");
 export const shipImage = await loadImg("ship/ship1.png");

@@ -4,19 +4,18 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ClientContext } from "@asteroid/client/Client";
-import { Acceleration } from "@asteroid/components/AccelerationComponent";
-import { Position } from "@asteroid/components/PositionComponent";
-import { Stats } from "@asteroid/components/StatsComponent";
-import { Velocity } from "@asteroid/components/VelocityComponent";
-import { ECSNode } from "@fluid/core/node/Node";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { Vector2 } from "@fluid/lib/spatial/Vector2";
-import * as MathUtils from "@fluid/lib/utils/MathUtils";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { MathUtils, Vector2 } from "fluidengine/v0/lib";
+import { ClientContext } from "../../../client/Client";
+import { Acceleration } from "../../../components/AccelerationComponent";
+import { Position } from "../../../components/PositionComponent";
+import { Stats } from "../../../components/StatsComponent";
+import { Velocity } from "../../../components/VelocityComponent";
+
 
 const round = MathUtils.round;
-
 function drawComplexText(renderContext: CanvasRenderingContext2D, x: number, y: number, content = [["Colored ", "red"], ["\n"], ["Text ", "Blue"], ["Test", "Green"]], lineSpacing = 2) {
     const TEXT_METRICS = renderContext.measureText("A");
     const FONT_HEIGHT = TEXT_METRICS.actualBoundingBoxAscent + TEXT_METRICS.actualBoundingBoxDescent;

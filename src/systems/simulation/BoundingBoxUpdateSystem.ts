@@ -4,13 +4,13 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { BoundingBox } from "@asteroid/components/BoundingBoxComponent";
-import { Position } from "@asteroid/components/PositionComponent";
-import { ECSNode } from "@fluid/core/node/Node";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { AABB } from "@fluid/lib/spatial/AABB";
-import { createOBB } from "@fluid/lib/spatial/OBB";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { AABB, createOBB } from "fluidengine/v0/lib";
+import { BoundingBox } from "../../components/BoundingBoxComponent";
+import { Position } from "../../components/PositionComponent";
+
 
 const fcos = Math.cos, fsin = Math.sin, abs = Math.abs;
 

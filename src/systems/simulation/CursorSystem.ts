@@ -4,14 +4,14 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { CursorTranslate } from "@asteroid/components/CursorTranslateComponent";
-import { ScreenPoint } from "@asteroid/components/ScreenPointComponent";
-import { Position } from "@asteroid/components/PositionComponent";
-import { FluidEngine } from "@fluid/FluidEngine";
-import { ECSNode } from "@fluid/core/node/Node";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { Vector2 } from "@fluid/lib/spatial/Vector2";
+import { Fluid, FluidEngine } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { Vector2 } from "fluidengine/v0/lib";
+import { CursorTranslate } from "../../components/CursorTranslateComponent";
+import { Position } from "../../components/PositionComponent";
+import { ScreenPoint } from "../../components/ScreenPointComponent";
+
 
 const schema = {
     position: Position,

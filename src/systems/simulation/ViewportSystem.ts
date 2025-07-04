@@ -4,17 +4,18 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ClientContext } from "@asteroid/client/Client";
-import { Viewport } from "@asteroid/components/ViewportComponent";
-import { CameraSpeedFactor } from "@asteroid/components/CameraSpeedFactorComponent";
-import { TargetPosition } from "@asteroid/components/TargetPositionComponent";
-import { Position } from "@asteroid/components/PositionComponent";
-import { Resolution } from "@asteroid/components/ResolutionComponent";
-import { Vector2 } from "@fluid/lib/spatial/Vector2";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { Fluid } from "@fluid/Fluid";
-import { ECSNode } from "@fluid/core/node/Node";
-import { shortestAngleDiff } from "@fluid/lib/utils/MathUtils";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { MathUtils, Vector2 } from "fluidengine/v0/lib";
+import { ClientContext } from "../../client/Client";
+import { CameraSpeedFactor } from "../../components/CameraSpeedFactorComponent";
+import { Position } from "../../components/PositionComponent";
+import { Resolution } from "../../components/ResolutionComponent";
+import { TargetPosition } from "../../components/TargetPositionComponent";
+import { Viewport } from "../../components/ViewportComponent";
+
+const shortestAngleDiff = MathUtils.shortestAngleDiff;
 
 const schema = {
     position: Position,

@@ -4,8 +4,10 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "@fluid/Fluid";
-import { Vec2 } from "@fluid/lib/spatial/Vector2";
+import { Fluid } from "fluidengine/v0";
+import { Vec2 } from "fluidengine/v0/lib";
+
+
 
 export interface VelocityComponent {
     velocity: Vec2;

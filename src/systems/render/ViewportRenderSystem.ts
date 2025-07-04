@@ -4,12 +4,13 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Viewport } from "@asteroid/components/ViewportComponent";
-import { ViewportBorderWidth } from "@asteroid/components/ViewportBorderWidthComponent";
-import { Resolution } from "@asteroid/components/ResolutionComponent";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { ECSNode } from "@fluid/core/node/Node";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { Resolution } from "../../components/ResolutionComponent";
+import { ViewportBorderWidth } from "../../components/ViewportBorderWidthComponent";
+import { Viewport } from "../../components/ViewportComponent";
+
 
 const schema = {
     resolution: Resolution,

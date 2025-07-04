@@ -4,14 +4,15 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { MovementControl } from "@asteroid/components/MovementControlComponent";
-import { Acceleration } from "@asteroid/components/AccelerationComponent";
-import { Velocity } from "@asteroid/components/VelocityComponent";
-import { Position } from "@asteroid/components/PositionComponent";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { ECSNode } from "@fluid/core/node/Node";
-import { Vector2 } from "@fluid/lib/spatial/Vector2";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { Vector2 } from "fluidengine/v0/lib";
+import { Acceleration } from "../../components/AccelerationComponent";
+import { MovementControl } from "../../components/MovementControlComponent";
+import { Position } from "../../components/PositionComponent";
+import { Velocity } from "../../components/VelocityComponent";
+
 
 const hPI = Math.PI / 2;
 const THRUST_FORCE = 1.5

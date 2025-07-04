@@ -4,8 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "@fluid/Fluid";
-import { Transform } from "@fluid/lib/spatial/Transform";
+import { Fluid } from "fluidengine/v0";
+import { Transform } from "fluidengine/v0/lib";
+
 
 export interface SpriteComponent {
     image: HTMLImageElement;

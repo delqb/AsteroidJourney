@@ -4,12 +4,13 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Position } from "@asteroid/components/PositionComponent";
-import { Sprite } from "@asteroid/components/SpriteComponent";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { ECSNode } from "@fluid/core/node/Node";
-import { Transform } from "@fluid/lib/spatial/Transform";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { Transform } from "fluidengine/v0/lib";
+import { Position } from "../../components/PositionComponent";
+import { Sprite } from "../../components/SpriteComponent";
+
 
 const schema = {
     position: Position,

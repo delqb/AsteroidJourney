@@ -4,16 +4,15 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { FireControl } from "@asteroid/components/FireControlComponent";
-import { Velocity } from "@asteroid/components/VelocityComponent";
-import { Position } from "@asteroid/components/PositionComponent";
-import { FluidEngine } from "@fluid/FluidEngine";
-import { ECSNode } from "@fluid/core/node/Node";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { Vec2 } from "@fluid/lib/spatial/Vector2";
-import { ProjectileSource } from "@asteroid/components/ProjectileSourceComponent";
-import { ECSEntityId } from "@fluid/core/entity/EntityId";
+import { Fluid, FluidEngine } from "fluidengine/v0";
+import { ECSEntityId, ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { Vec2 } from "fluidengine/v0/lib";
+import { FireControl } from "../../components/FireControlComponent";
+import { Position } from "../../components/PositionComponent";
+import { ProjectileSource } from "../../components/ProjectileSourceComponent";
+import { Velocity } from "../../components/VelocityComponent";
+
 
 const schema = {
     projectileSource: ProjectileSource,

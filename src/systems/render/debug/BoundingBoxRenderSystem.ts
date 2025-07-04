@@ -4,11 +4,12 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ClientContext } from "@asteroid/client/Client";
-import { BoundingBox } from "@asteroid/components/BoundingBoxComponent";
-import { ECSNode } from "@fluid/core/node/Node";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { ClientContext } from "../../../client/Client";
+import { BoundingBox } from "../../../components/BoundingBoxComponent";
+
 
 const PI = Math.PI;
 

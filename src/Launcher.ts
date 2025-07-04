@@ -4,11 +4,11 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine";
-
-console.log(`Launcher has started!`);
+import { Fluid } from "fluidengine/v0";
 
 async function main() {
+    console.log(`Launcher has started!`);
+
     try {
         console.log("Bootstrapping Fluid Core...");
         const coreInstance = Fluid.bootstrap();

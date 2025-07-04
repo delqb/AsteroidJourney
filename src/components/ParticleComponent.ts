@@ -4,7 +4,8 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "@fluid/Fluid";
+import { Fluid } from "fluidengine/v0";
+
 
 export interface ParticleComponent {
     radius: number;

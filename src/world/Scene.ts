@@ -4,9 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ECSComponent } from "@fluid/core/component/Component";
-import { ECSEntityId } from "@fluid/core/entity/EntityId";
-import { Fluid } from "@fluid/Fluid";
+import { Fluid } from "fluidengine/v0";
+import { ECSEntityId, ECSComponent } from "fluidengine/v0/api";
+
 
 export interface ReloadableEntity {
     readonly entityId: ECSEntityId;

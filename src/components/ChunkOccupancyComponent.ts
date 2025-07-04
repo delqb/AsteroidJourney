@@ -4,8 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "@fluid/Fluid";
-import { ChunkKey } from "@fluid/lib/world/chunk/Chunk";
+import { Fluid } from "fluidengine/v0";
+import { ChunkKey } from "fluidengine/v0/lib";
+
 
 /**
  * Component that tracks the set of chunks currently occupied by an entity.

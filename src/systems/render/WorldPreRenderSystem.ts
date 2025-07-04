@@ -4,13 +4,14 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ClientContext } from "@asteroid/client/Client";
-import { Viewport } from "@asteroid/components/ViewportComponent";
-import { Position } from "@asteroid/components/PositionComponent";
-import { Resolution } from "@asteroid/components/ResolutionComponent";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { ECSNode } from "@fluid/core/node/Node";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { ClientContext } from "../../client/Client";
+import { Position } from "../../components/PositionComponent";
+import { Resolution } from "../../components/ResolutionComponent";
+import { Viewport } from "../../components/ViewportComponent";
+
 
 const hPI = Math.PI / 2;
 

@@ -4,13 +4,14 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ClientContext } from "@asteroid/client/Client";
-import { Acceleration } from "@asteroid/components/AccelerationComponent";
-import { Velocity } from "@asteroid/components/VelocityComponent";
-import { Position } from "@asteroid/components/PositionComponent";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { ECSNode } from "@fluid/core/node/Node";
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { ClientContext } from "../../client/Client";
+import { Acceleration } from "../../components/AccelerationComponent";
+import { Position } from "../../components/PositionComponent";
+import { Velocity } from "../../components/VelocityComponent";
+
 
 const schema = {
     position: Position,

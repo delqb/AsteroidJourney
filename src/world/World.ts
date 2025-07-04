@@ -4,11 +4,11 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { FluidEngine } from "@fluid/FluidEngine";
-import { ChunkIndex, ChunkMeta, ChunkKey, ChunkState, parseChunkKey } from "@fluid/lib/world/chunk/Chunk";
+import { FluidEngine, Fluid } from "fluidengine/v0";
+import { ECSEntityId } from "fluidengine/v0/api";
+import { ChunkIndex, ChunkMeta, ChunkKey, parseChunkKey, ChunkState } from "fluidengine/v0/lib";
 import { SceneFacade } from "./Scene";
-import { Fluid } from "@fluid/Fluid";
-import { ECSEntityId } from "@fluid/core/entity/EntityId";
+
 
 export interface ChunkGenerator {
     (worldContext: WorldContext, chunkIndex: ChunkIndex, chunkSize: number): ChunkMeta

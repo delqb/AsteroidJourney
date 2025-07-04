@@ -4,15 +4,13 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { BoundingBox, BoundingBoxComponent } from "@asteroid/components/BoundingBoxComponent";
-import { ChunkOccupancy } from "@asteroid/components/ChunkOccupancyComponent";
-import { FluidEngine } from "@fluid/FluidEngine";
-import { ECSNode } from "@fluid/core/node/Node";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { aabbsIntersect } from "@fluid/lib/spatial/AABB";
-import { isSeparatingAxisExistent } from "@fluid/lib/spatial/ConvexPolygon";
-import { ChunkKey } from "@fluid/lib/world/chunk/Chunk";
+import { Fluid, FluidEngine } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { ChunkKey, aabbsIntersect, isSeparatingAxisExistent } from "fluidengine/v0/lib";
+import { BoundingBox } from "../../components/BoundingBoxComponent";
+import { ChunkOccupancy } from "../../components/ChunkOccupancyComponent";
+
 
 const schema = {
     boundingBox: BoundingBox,

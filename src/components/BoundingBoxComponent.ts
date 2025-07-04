@@ -4,12 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "@fluid/Fluid";
-import { AABB } from "@fluid/lib/spatial/AABB";
-import { OBB } from "@fluid/lib/spatial/OBB";
-import { RectSize } from "@fluid/lib/spatial/RectSize";
-import { Transform, createTransform } from "@fluid/lib/spatial/Transform";
-import { Vec2, Vector2 } from "@fluid/lib/spatial/Vector2";
+import { Fluid } from "fluidengine/v0";
+import { Vec2, RectSize, Transform, AABB, OBB, Vector2, createTransform } from "fluidengine/v0/lib";
+
 
 export interface BoundingBoxComponent {
     // Center and rotation are computed from position + transform in a system then stored here

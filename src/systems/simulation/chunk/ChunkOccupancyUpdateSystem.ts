@@ -4,15 +4,15 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { BoundingBox } from "@asteroid/components/BoundingBoxComponent";
-import { ChunkOccupancy } from "@asteroid/components/ChunkOccupancyComponent";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { ECSNode } from "@fluid/core/node/Node";
-import { WorldContext } from "@asteroid/world/World";
-import { FluidEngine } from "@fluid/FluidEngine";
-import { conservativeOBBRasterization } from "@fluid/lib/utils/GridUtils";
-import { ChunkKey, getChunkKeyFromIndex, getChunkIndexFromPosition, ChunkState } from "@fluid/lib/world/chunk/Chunk";
+import { Fluid, FluidEngine } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { ChunkKey, getChunkKeyFromIndex, getChunkIndexFromPosition, ChunkState, GridUtils } from "fluidengine/v0/lib";
+import { BoundingBox } from "../../../components/BoundingBoxComponent";
+import { ChunkOccupancy } from "../../../components/ChunkOccupancyComponent";
+import { WorldContext } from "../../../world/World";
+
+const conservativeOBBRasterization = GridUtils.conservativeOBBRasterization;
 
 const schema = {
     boundingBox: BoundingBox,

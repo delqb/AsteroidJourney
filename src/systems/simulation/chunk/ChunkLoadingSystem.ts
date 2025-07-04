@@ -4,17 +4,13 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { RenderCenter } from "@asteroid/components/RenderCenterComponent";
-import { Position } from "@asteroid/components/PositionComponent";
-import { WorldContext } from "@asteroid/world/World";
-import { FluidEngine } from "@fluid/FluidEngine";
-import { getChunkIndexFromPosition, getChunkKeyFromIndex, ChunkState } from "@fluid/lib/world/chunk/Chunk";
-import { Fluid } from "@fluid/Fluid";
-import { FluidSystem } from "@fluid/impl/core/system/FluidSystem";
-import { ECSNode } from "@fluid/core/node/Node";
-import { ECSNodeSchema } from "@fluid/core/node/schema/NodeSchema";
-
-const floor = Math.floor;
+import { Fluid, FluidEngine } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { getChunkIndexFromPosition, getChunkKeyFromIndex, ChunkState } from "fluidengine/v0/lib";
+import { Position } from "../../../components/PositionComponent";
+import { RenderCenter } from "../../../components/RenderCenterComponent";
+import { WorldContext } from "../../../world/World";
 
 const schema = {
     renderCenter: RenderCenter,

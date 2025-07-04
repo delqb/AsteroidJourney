@@ -1,13 +1,18 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "target": "ESNext",
-    "module": "ESNext",
+    "target": "esnext",
     "outDir": "dist",
     "rootDir": ".",
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
-    "temp"
+    "temp",
+    "node_modules",
+    "dist"
   ]
 }
