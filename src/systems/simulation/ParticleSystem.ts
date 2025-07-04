@@ -1,0 +1,33 @@
+
+/** 
+    Released under MIT License
+    Copyright (c) 2025 Del Elbanna
+*/
+
+import { Fluid } from "fluidengine/v0";
+import { ECSNode } from "fluidengine/v0/api";
+import { FluidSystem } from "fluidengine/v0/internal";
+import { ClientContext } from "../../client/Client";
+import { LifeTime } from "../../components/LifetimeComponent";
+import { Particle } from "../../components/ParticleComponent";
+
+const schema = {
+    particle: Particle,
+    lifetime: LifeTime
+}
+type Schema = typeof schema;
+const nodeMeta = Fluid.registerNodeSchema(schema, "Particle Render System");
+
+export class ParticleSystem extends FluidSystem<Schema> {
+    constructor(public clientContext: ClientContext) {
+        super("Particle Render System", nodeMeta);
+    }
+
+    updateNode(node: ECSNode<Schema>): void {
+        const { entityId, lifetime } = node;
+        const { lifeDuration, spawnTime } = lifetime;
+        const deathTime = spawnTime + lifeDuration;
+        if (this.clientContext.engineInstance.getGameTime() >= deathTime)
+            Fluid.removeEntity(entityId);
+    }
+}

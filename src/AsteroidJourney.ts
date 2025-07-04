@@ -52,6 +52,12 @@ import { ChunkOccupancy } from "./components/ChunkOccupancyComponent";
 import { Projectile } from "./components/ProjectileComponent";
 import { ProjectileSource } from "./components/ProjectileSourceComponent";
 import { Viewport } from "./components/ViewportComponent";
+import { Asteroid } from "./components/AsteroidComponent";
+import { Health } from "./components/HealthComponent";
+import { HealthBarRenderSystem } from "./systems/render/HealthBarRenderSystem";
+import { AsteroidDeathSystem } from "./systems/simulation/AsteroidDeathSystem";
+import { ParticleSystem } from "./systems/simulation/ParticleSystem";
+import { ProjectileDamageSystem } from "./systems/simulation/ProjectileDamageSystem";
 
 const canvasToImage = ImageUtils.canvasToImage,
     loadImage = ImageUtils.loadImage,
@@ -239,6 +245,34 @@ const renderer = new CanvasRenderer(
     });
 
 let renderDistance: number = 5;
+
+
+export const CAMERA = {
+    position: Position.createComponent({
+        position: {
+            x: 0,
+            y: 0,
+        },
+        rotation: 0
+    }),
+    target: TargetPosition.createComponent({
+        position: Position.createComponent({ position: Vector2.zero(), rotation: 0 }).data
+    }),
+    cameraSpeed: CameraSpeedFactor.createComponent({
+        speedFactor: 22
+    }),
+    borderWidth: ViewportBorderWidth.createComponent({
+        borderWidth: 0.05 * Math.min(renderer.getWidth(), renderer.getHeight())
+    }),
+    viewport: Viewport.createComponent({
+    }),
+    resolution: VIEWPORT_RESOLUTION_COMPONENT
+}
+
+const cameraEntityId = Fluid.createEntityWithComponents(
+    ...Object.values(CAMERA),
+);
+
 const engine = new FluidEngine(Fluid.core(), 1024);
 const worldContext: WorldContext = new WorldContext(engine, 1.024, 0.1, generateChunk);
 const clientContext: ClientContext = new ClientContext(engine, worldContext, renderer);
@@ -447,13 +481,14 @@ let kinematicSystem = new KinematicSystem(clientContext),
     movementControlSystem = new MovementControlSystem(),
     viewportSystem = new ViewportSystem(clientContext),
     projectileSystem = new ProjectileSystem(engine),
-    firingSystem = new FiringSystem(engine, p => spawnProjectile(p.position, p.velocity, p.rotation, p.angularVelocity, p.deathTime, p.generation, p.size)),
+    firingSystem = new FiringSystem(engine, p => spawnProjectile(p.position, p.velocity, p.rotation, p.angularVelocity, p.deathTime, p.generation, 0.5, p.size)),
     cursorSystem = new CursorSystem(engine),
     chunkLoadingSystem = new ChunkLoadingSystem(engine, worldContext),
     chunkUnloadingSystem = new ChunkUnloadingSystem(engine, worldContext),
     chunkOccupancyUpdateSystem = new ChunkOccupancyUpdateSystem(engine, worldContext),
     boundingBoxUpdateSystem = new BoundingBoxUpdateSystem(),
     collisionDetectionSystem = new CollisionDetectionSystem(engine),
+    pojectileDamageSystem = new ProjectileDamageSystem(),
 
     worldPreRenderSystem = new WorldPreRenderSystem(clientContext),
     viewportRenderSystem = new ViewportRenderSystem(renderContext),
@@ -462,8 +497,9 @@ let kinematicSystem = new KinematicSystem(clientContext),
     boundingBoxRenderSystem = new BoundingBoxRenderSystem(clientContext),
     axisRenderSystem = new AxisRenderSystem(clientContext),
     chunkBorderRenderSystem = new ChunkBorderRenderSystem(clientContext),
-    occupiedChunkHighlightingSystem = new OccupiedChunkHighlightingSystem(clientContext)
-    ;
+    occupiedChunkHighlightingSystem = new OccupiedChunkHighlightingSystem(clientContext),
+    healthBarRenderSystem = new HealthBarRenderSystem(renderContext, () => CAMERA.position.data.rotation);
+;
 
 simulationPhase.pushSystems(
     chunkLoadingSystem,
@@ -477,7 +513,10 @@ simulationPhase.pushSystems(
     positionSystem,
     viewportSystem,
     boundingBoxUpdateSystem,
-    collisionDetectionSystem
+    collisionDetectionSystem,
+    pojectileDamageSystem,
+    new AsteroidDeathSystem(clientContext),
+    new ParticleSystem(clientContext)
 );
 
 worldRenderPhase.pushSystems(
@@ -486,7 +525,8 @@ worldRenderPhase.pushSystems(
     occupiedChunkHighlightingSystem,
     chunkBorderRenderSystem,
     boundingBoxRenderSystem,
-    axisRenderSystem
+    axisRenderSystem,
+    healthBarRenderSystem
 );
 
 hudRenderPhase.pushSystems(
@@ -501,8 +541,9 @@ const MC_POS = Position.createComponent({
     rotation: -Math.PI / 2
 });
 
-const MC_SCALE = 0.2 / shipImage.height;
+CAMERA.target.data.position = MC_POS.data;
 
+const MC_SCALE = 0.2 / shipImage.height;
 function initMainCharacter(): ECSEntityId {
     return Fluid.createEntityWithComponents(
         MC_POS,
@@ -550,6 +591,7 @@ function initMainCharacter(): ECSEntityId {
         ChunkOccupancy.createComponent({ chunkKeys: new Set() }),
         MOVEMENT_CONTROL_COMPONENT,
         FIRE_CONTROL_COMPONENT,
+        Health.createComponent({ maxHealth: 100, currentHealth: 60 })
     );
 }
 
@@ -569,28 +611,6 @@ KEYBOARD_CONTROLS["fire"] = {
         FIRE_CONTROL_COMPONENT.data.fireIntent = true;
     }
 };
-
-let viewport = Fluid.createEntityWithComponents(
-    Position.createComponent({
-        position: {
-            x: 0,
-            y: 0,
-        },
-        rotation: 0
-    }),
-    TargetPosition.createComponent({
-        position: MC_POS.data
-    }),
-    ViewportBorderWidth.createComponent({
-        borderWidth: 0.05 * Math.min(renderer.getWidth(), renderer.getHeight())
-    }),
-    CameraSpeedFactor.createComponent({
-        speedFactor: 22
-    }),
-    Viewport.createComponent({
-    }),
-    VIEWPORT_RESOLUTION_COMPONENT
-);
 
 const CURSOR_SCREEN_COMPONENT = ScreenPoint.createComponent({
     point: { x: 0, y: 0 }
@@ -643,11 +663,13 @@ export function createAsteroid(position: Vec2, rotation: number, velocity: Vec2,
         }),
         ChunkOccupancy.createComponent({ chunkKeys: new Set() }),
         BoundingBox.createComponent(createBoundingBox({ width: size, height: size })),
+        Health.createComponent({ maxHealth: 20 * size, currentHealth: 20 * size }),
+        Asteroid.createComponent({ size })
     );
     return entity;
 }
 
-export function spawnProjectile(position: Vec2, velocity: Vec2, rotation: number, angularVelocity: number, deathTime: number, generation: number, size: number = 0.001): ECSEntityId {
+export function spawnProjectile(position: Vec2, velocity: Vec2, rotation: number, angularVelocity: number, deathTime: number, generation: number, damage: number = 0, size: number = 0.001): ECSEntityId {
     const entity = createSpriteEntity(
         position,
         rotation,
@@ -662,7 +684,8 @@ export function spawnProjectile(position: Vec2, velocity: Vec2, rotation: number
         }),
         Projectile.createComponent({
             deathTime: deathTime,
-            generation: generation
+            generation: generation,
+            damage
         }),
         Acceleration.createComponent({
             acceleration: { x: 0, y: 0 },

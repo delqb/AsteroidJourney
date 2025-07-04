@@ -10,6 +10,7 @@ import { FluidSystem } from "fluidengine/v0/internal";
 import { ChunkKey, aabbsIntersect, isSeparatingAxisExistent } from "fluidengine/v0/lib";
 import { BoundingBox } from "../../components/BoundingBoxComponent";
 import { ChunkOccupancy } from "../../components/ChunkOccupancyComponent";
+import { Collision } from "../../components/CollisionComponent";
 
 
 const schema = {
@@ -108,9 +109,14 @@ export class CollisionDetectionSystem extends FluidSystem<Schema> {
     }
 
     private onCollide(nodeA: ECSNode<Schema>, nodeB: ECSNode<Schema>) {
-        // Temporary code for testing purposes.
-        Fluid.removeEntity(nodeA.entityId);
-        Fluid.removeEntity(nodeB.entityId);
+        const eA = nodeA.entityId,
+            eB = nodeB.entityId;
+        const proxyA = Fluid.getEntityProxy(eA);
+        const proxyB = Fluid.getEntityProxy(eB);
+        if (!proxyA.hasComponent(Collision))
+            proxyA.addComponent(Collision.createComponent({ collidedEntity: eB }));
+        if (!proxyB.hasComponent(Collision))
+            proxyB.addComponent(Collision.createComponent({ collidedEntity: eA }));
     }
 
     public updateNodes(nodes: Iterable<ECSNode<Schema>>): void {
