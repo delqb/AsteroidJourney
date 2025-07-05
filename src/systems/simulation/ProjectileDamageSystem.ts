@@ -4,13 +4,16 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine/v0";
+import { Fluid } from "fluidengine/dev";
 import { ECSNode } from "fluidengine/v0/api";
 import { FluidSystem } from "fluidengine/v0/internal";
 import { Collision } from "../../components/CollisionComponent";
 import { EntityDeath } from "../../components/EntityDeathComponent";
 import { Health } from "../../components/HealthComponent";
 import { Projectile } from "../../components/ProjectileComponent";
+import { Asteroid } from "../../components/AsteroidComponent";
+import { PropertyAnimation } from "../../components/PropertyAnimationComponent";
+import { Sprite } from "../../components/SpriteComponent";
 
 const schema = {
     projectile: Projectile,
@@ -27,7 +30,7 @@ export class ProjectileDamageSystem extends FluidSystem<Schema> {
     }
 
     updateNode(node: ECSNode<Schema>): void {
-        const { collision, entityId, projectile: projectileData } = node;
+        const { collision, entityId: projectileEntityId, projectile: projectileData } = node;
         const otherEntity = Fluid.getEntityProxy(collision.collidedEntity);
 
         if (!otherEntity.hasComponent(Health))
@@ -36,10 +39,24 @@ export class ProjectileDamageSystem extends FluidSystem<Schema> {
         const healthData = otherEntity.getComponent(Health).data;
         const health = Math.max(0, healthData.currentHealth - projectileData.damage);
         healthData.currentHealth = health;
+
+        // Temp for testing
+        if (otherEntity.hasComponent(Asteroid) && otherEntity.hasComponent(PropertyAnimation)) {
+            const animations = otherEntity.getComponent(PropertyAnimation).data.animations;
+            const anim = animations.get(Sprite.getId().getSymbol())?.get('transform');
+            if (anim) {
+                if (anim.completed) {
+                    anim.elapsed = 0;
+                    anim.completed = false;
+                }
+            }
+        }
+
         if (health === 0)
             if (!otherEntity.hasComponent(EntityDeath))
                 otherEntity.addComponent(EntityDeath.createComponent({ readyToRemove: false }));
 
-        Fluid.removeEntity(entityId);
+        Fluid.removeEntity(projectileEntityId);
+        otherEntity.removeComponent(Collision);
     }
 }

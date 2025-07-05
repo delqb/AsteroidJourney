@@ -4,14 +4,14 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid, FluidEngine } from "fluidengine/v0";
 import { ECSEntityId, ECSNode } from "fluidengine/v0/api";
-import { FluidSystem } from "fluidengine/v0/internal";
+import { FluidEngine, FluidSystem } from "fluidengine/v0/internal";
 import { Vec2 } from "fluidengine/v0/lib";
 import { FireControl } from "../../components/FireControlComponent";
 import { Position } from "../../components/PositionComponent";
 import { ProjectileSource } from "../../components/ProjectileSourceComponent";
 import { Velocity } from "../../components/VelocityComponent";
+import { Fluid } from "fluidengine/dev";
 
 
 const schema = {

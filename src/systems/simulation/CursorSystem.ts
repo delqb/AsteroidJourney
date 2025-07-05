@@ -4,13 +4,13 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid, FluidEngine } from "fluidengine/v0";
 import { ECSNode } from "fluidengine/v0/api";
-import { FluidSystem } from "fluidengine/v0/internal";
+import { FluidEngine, FluidSystem } from "fluidengine/v0/internal";
 import { Vector2 } from "fluidengine/v0/lib";
 import { CursorTranslate } from "../../components/CursorTranslateComponent";
 import { Position } from "../../components/PositionComponent";
 import { ScreenPoint } from "../../components/ScreenPointComponent";
+import { Fluid } from "fluidengine/dev";
 
 
 const schema = {

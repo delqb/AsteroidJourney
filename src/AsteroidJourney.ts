@@ -42,9 +42,9 @@ import {
 } from "./systems";
 import { OccupiedChunkHighlightingSystem } from "./systems/render/debug/OccupiedChunkHighlightingSystem";
 import { WorldContext } from "./world/World";
-import { Fluid, FluidEngine } from "fluidengine/v0";
+import { Fluid } from "fluidengine/v0";
 import { ECSEntityId } from "fluidengine/v0/api";
-import { FluidSystemPhase } from "fluidengine/v0/internal";
+import { FluidEngine, FluidSystemPhase } from "fluidengine/v0/internal";
 import { ChunkIndex, ChunkMeta, getChunkCenterFromIndex, Vector2, createChunk, ChunkState, Vec2, MathUtils, ImageUtils } from "fluidengine/v0/lib";
 import { BoundingBox, createBoundingBox } from "./components/BoundingBoxComponent";
 import { Chunk } from "./components/ChunkComponent";
@@ -58,6 +58,9 @@ import { HealthBarRenderSystem } from "./systems/render/HealthBarRenderSystem";
 import { AsteroidDeathSystem } from "./systems/simulation/AsteroidDeathSystem";
 import { ParticleSystem } from "./systems/simulation/ParticleSystem";
 import { ProjectileDamageSystem } from "./systems/simulation/ProjectileDamageSystem";
+import { createPropertyAnimationsComponent } from "./components/PropertyAnimationComponent";
+import { InterpolationRegistry } from "./animation/Interpolator";
+import { PropertyAnimationSystem } from "./systems/simulation/animation/PropertyAnimationSystem";
 
 const canvasToImage = ImageUtils.canvasToImage,
     loadImage = ImageUtils.loadImage,
@@ -516,7 +519,8 @@ simulationPhase.pushSystems(
     collisionDetectionSystem,
     pojectileDamageSystem,
     new AsteroidDeathSystem(clientContext),
-    new ParticleSystem(clientContext)
+    new ParticleSystem(clientContext),
+    new PropertyAnimationSystem(engine, InterpolationRegistry.resolveInterpolator)
 );
 
 worldRenderPhase.pushSystems(
@@ -654,8 +658,23 @@ export function createSpriteEntity(position: Vec2, rotation: number, spriteTextu
     )
 }
 
+function transformScaleLerpBulge(
+    from: { scale: number },
+    to: { scale: number },
+    timeElapsed: number,
+    totalDuration: number
+): { scale: number } {
+    return {
+        scale: MathUtils.lerp(from.scale, to.scale, Math.sin(Math.PI * timeElapsed / totalDuration))
+    };
+}
+
+const transformScaleLerpId = InterpolationRegistry.registerInterpolation(transformScaleLerpBulge, "LERP(transform.scale)");
+
 export function createAsteroid(position: Vec2, rotation: number, velocity: Vec2, angularVelocity: number, size: number): ECSEntityId {
-    const entity = createSpriteEntity(Vector2.copy(position), rotation, asteroidImage, 3, size / asteroidImage.width);
+    const initialSpriteScale = size / asteroidImage.width;
+    const initialSpriteTransform = { scale: initialSpriteScale };
+    const entity = createSpriteEntity(Vector2.copy(position), rotation, asteroidImage, 3, initialSpriteScale);
     Fluid.addEntityComponents(entity,
         Velocity.createComponent({
             velocity,
@@ -664,7 +683,31 @@ export function createAsteroid(position: Vec2, rotation: number, velocity: Vec2,
         ChunkOccupancy.createComponent({ chunkKeys: new Set() }),
         BoundingBox.createComponent(createBoundingBox({ width: size, height: size })),
         Health.createComponent({ maxHealth: 20 * size, currentHealth: 20 * size }),
-        Asteroid.createComponent({ size })
+        Asteroid.createComponent({ size }),
+        createPropertyAnimationsComponent(
+            [
+                [
+                    // Sprite animations
+                    Sprite,
+                    [
+                        // damaged animation
+                        {
+                            propertyName: 'transform',
+                            beginningValue: initialSpriteTransform,
+                            endingValue: { scale: initialSpriteScale * 1.15 },
+                            completed: true,
+                            duration: 0.25,
+                            elapsed: 0,
+                            onComplete(entityId, propertyAnimationComponent) {
+                                const transform = propertyAnimationComponent.animations.get(Sprite.getId().getSymbol()).get('transform');
+                                transform.completed = true;
+                            },
+                            interpolationId: transformScaleLerpId
+                        }
+                    ]
+                ]
+            ]
+        )
     );
     return entity;
 }

@@ -4,7 +4,7 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { FluidEngine } from "fluidengine/v0";
+import { FluidEngine } from "fluidengine/v0/internal";
 import { WorldContext } from "../world/World";
 import { CanvasRenderer } from "./renderer/Renderer";
 

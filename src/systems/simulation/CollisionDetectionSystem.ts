@@ -4,9 +4,8 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid, FluidEngine } from "fluidengine/v0";
 import { ECSNode } from "fluidengine/v0/api";
-import { FluidSystem } from "fluidengine/v0/internal";
+import { Fluid, FluidEngine, FluidSystem } from "fluidengine/dev/internal";
 import { ChunkKey, aabbsIntersect, isSeparatingAxisExistent } from "fluidengine/v0/lib";
 import { BoundingBox } from "../../components/BoundingBoxComponent";
 import { ChunkOccupancy } from "../../components/ChunkOccupancyComponent";
@@ -23,6 +22,15 @@ const nodeMeta = Fluid.registerNodeSchema(schema, "Collision Detection");
 export class CollisionDetectionSystem extends FluidSystem<Schema> {
     constructor(public engineInstance: FluidEngine) {
         super("Collision Detection System", nodeMeta);
+    }
+
+    private * clearCollisionComponent(nodes: Iterable<ECSNode<Schema>>): Iterable<ECSNode<Schema>> {
+        for (const node of nodes) {
+            const entityId = node.entityId;
+            if (Fluid.entityHasComponent(entityId, Collision))
+                Fluid.removeEntityComponent(entityId, Collision);
+            yield node;
+        }
     }
 
     private getEntitiesPerChunk(nodes: Iterable<ECSNode<Schema>>): Iterable<ECSNode<Schema>[]> {
@@ -120,7 +128,7 @@ export class CollisionDetectionSystem extends FluidSystem<Schema> {
     }
 
     public updateNodes(nodes: Iterable<ECSNode<Schema>>): void {
-        const entityGroups = this.getEntitiesPerChunk(nodes);
+        const entityGroups = this.getEntitiesPerChunk(this.clearCollisionComponent(nodes));
         const candidates = this.sortAndSweep(entityGroups);
         const collided = this.checkCollision(candidates);
         for (const pair of collided) {

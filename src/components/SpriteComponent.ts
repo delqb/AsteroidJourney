@@ -12,6 +12,7 @@ export interface SpriteComponent {
     image: HTMLImageElement;
     transform?: Transform;
     zIndex: number;
+    alpha?: number;
 };
 
 export const Sprite = Fluid.defineComponentType<SpriteComponent>("Sprite");
