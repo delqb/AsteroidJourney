@@ -673,6 +673,7 @@ const transformScaleLerpId = InterpolationRegistry.registerInterpolation(transfo
 
 export function createAsteroid(position: Vec2, rotation: number, velocity: Vec2, angularVelocity: number, size: number): ECSEntityId {
     const initialSpriteScale = size / asteroidImage.width;
+    const health = 60 * size;
     const initialSpriteTransform = { scale: initialSpriteScale };
     const entity = createSpriteEntity(Vector2.copy(position), rotation, asteroidImage, 3, initialSpriteScale);
     Fluid.addEntityComponents(entity,
@@ -682,7 +683,7 @@ export function createAsteroid(position: Vec2, rotation: number, velocity: Vec2,
         }),
         ChunkOccupancy.createComponent({ chunkKeys: new Set() }),
         BoundingBox.createComponent(createBoundingBox({ width: size, height: size })),
-        Health.createComponent({ maxHealth: 20 * size, currentHealth: 20 * size }),
+        Health.createComponent({ maxHealth: health, currentHealth: health }),
         Asteroid.createComponent({ size }),
         createPropertyAnimationsComponent(
             [
@@ -694,9 +695,9 @@ export function createAsteroid(position: Vec2, rotation: number, velocity: Vec2,
                         {
                             propertyName: 'transform',
                             beginningValue: initialSpriteTransform,
-                            endingValue: { scale: initialSpriteScale * 1.15 },
+                            endingValue: { scale: initialSpriteScale * 1.20 },
                             completed: true,
-                            duration: 0.25,
+                            duration: 0.15,
                             elapsed: 0,
                             onComplete(entityId, propertyAnimationComponent) {
                                 const transform = propertyAnimationComponent.animations.get(Sprite.getId().getSymbol()).get('transform');
