@@ -1,4 +1,6 @@
 {
+  "author": "Del Elbanna",
+  "license": "MIT",
   "type": "module",
   "//": [
     "fluidengine local package tarball file path",
