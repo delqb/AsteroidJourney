@@ -1,5 +1,5 @@
 import { ECSComponent, ECSComponentType, ECSEntityId } from "fluidengine/v0/api";
-import { InterpolationId } from "./Interpolator";
+import { InterpolationId } from "./Interpolators";
 import { PropertyAnimationsComponent } from "../components/PropertyAnimationComponent";
 
 export interface PropertyAnimationData<T, K extends keyof T> {

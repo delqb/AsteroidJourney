@@ -1,3 +1,5 @@
+import { transformScaleLerpBulge } from "../Utils";
+
 export interface InterpolationId {
     getSymbol(): symbol;
     getName(): string;
@@ -45,5 +47,8 @@ export function resolveInterpolator(interpolationId: InterpolationId): Interpola
     return AInterpolationId.map.get(interpolationId.getSymbol());
 }
 
-const reg = { registerInterpolation, resolveInterpolator }
-export { reg as InterpolationRegistry };
+export const InterpolationRegistry = { registerInterpolation, resolveInterpolator }
+
+export const transformScaleLerpId = InterpolationRegistry.registerInterpolation(transformScaleLerpBulge, "LERP(transform.scale)");
+
+

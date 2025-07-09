@@ -2,8 +2,8 @@ import { FluidEngine, FluidSystem } from "fluidengine/v0/internal";
 import { PropertyAnimation } from "../../../components/PropertyAnimationComponent";
 import { Fluid } from "fluidengine/dev";
 import { ECSNode } from "fluidengine/v0/api";
-import { InterpolationId } from "../../../animation/Interpolator";
-import { Interpolator } from "../../../animation/Interpolator";
+import { InterpolationId } from "../../../animation/Interpolators";
+import { Interpolator } from "../../../animation/Interpolators";
 
 const schema = {
     propertyAnimation: PropertyAnimation
