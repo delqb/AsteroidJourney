@@ -7,7 +7,7 @@
 import { Fluid } from "fluidengine/v0";
 
 export interface AsteroidComponent {
-    size: number
+    area: number
 }
 
 export const Asteroid = Fluid.defineComponentType<AsteroidComponent>("Asteroid");
