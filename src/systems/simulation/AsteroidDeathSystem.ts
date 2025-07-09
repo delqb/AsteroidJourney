@@ -36,7 +36,7 @@ function createAsteroidParticle(position: Vec2, rotation: number, velocity: Vec2
     )
 }
 
-const explosionIntensityScale = 0.5;
+const explosionIntensityScale = 0.1;
 
 export class AsteroidDeathSystem extends FluidSystem<Schema> {
     constructor(
