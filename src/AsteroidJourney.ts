@@ -6,19 +6,19 @@
 
 import { ClientContext } from "./client/Client";
 import { CanvasRenderer } from "./client/renderer/Renderer";
-import { Sprite, SpriteComponent } from "./components/SpriteComponent";
-import { RenderCenter, RenderCenterComponent } from "./components/RenderCenterComponent";
-import { Stats, StatsComponent } from "./components/StatsComponent";
-import { FireControl, FireControlComponent } from "./components/FireControlComponent";
-import { MovementControl, MovementControlComponent } from "./components/MovementControlComponent";
-import { ViewportBorderWidth, ViewportBorderWidthComponent } from "./components/ViewportBorderWidthComponent";
-import { CameraSpeedFactor, CameraSpeedFactorComponent } from "./components/CameraSpeedFactorComponent";
-import { ScreenPoint, ScreenPointComponent } from "./components/ScreenPointComponent";
-import { Acceleration, AccelerationComponent } from "./components/AccelerationComponent";
-import { Velocity, VelocityComponent } from "./components/VelocityComponent";
-import { TargetPosition, TargetPositionComponent } from "./components/TargetPositionComponent";
-import { Position, PositionComponent } from "./components/PositionComponent";
-import { Resolution, ResolutionComponent } from "./components/ResolutionComponent";
+import { Sprite } from "./components/SpriteComponent";
+import { RenderCenter } from "./components/RenderCenterComponent";
+import { Stats } from "./components/StatsComponent";
+import { FireControl } from "./components/FireControlComponent";
+import { MovementControl } from "./components/MovementControlComponent";
+import { ViewportBorderWidth } from "./components/ViewportBorderWidthComponent";
+import { CameraSpeedFactor } from "./components/CameraSpeedFactorComponent";
+import { ScreenPoint } from "./components/ScreenPointComponent";
+import { Acceleration } from "./components/AccelerationComponent";
+import { Velocity } from "./components/VelocityComponent";
+import { TargetPosition } from "./components/TargetPositionComponent";
+import { Position } from "./components/PositionComponent";
+import { Resolution } from "./components/ResolutionComponent";
 import {
     AxisRenderSystem,
     BoundingBoxRenderSystem,
@@ -45,135 +45,46 @@ import { WorldContext } from "./world/World";
 import { Fluid } from "fluidengine/v0";
 import { ECSEntityId } from "fluidengine/v0/api";
 import { FluidEngine, FluidSystemPhase } from "fluidengine/v0/internal";
-import { ChunkIndex, ChunkMeta, getChunkCenterFromIndex, Vector2, createChunk, ChunkState, Vec2, MathUtils, ImageUtils } from "fluidengine/v0/lib";
+import { ChunkIndex, ChunkMeta, getChunkCenterFromIndex, Vector2, createChunk, ChunkState, Vec2, MathUtils, Transform } from "fluidengine/v0/lib";
 import { BoundingBox, createBoundingBox } from "./components/BoundingBoxComponent";
 import { Chunk } from "./components/ChunkComponent";
 import { ChunkOccupancy } from "./components/ChunkOccupancyComponent";
-import { Projectile } from "./components/ProjectileComponent";
 import { ProjectileSource } from "./components/ProjectileSourceComponent";
 import { Viewport } from "./components/ViewportComponent";
-import { Asteroid } from "./components/AsteroidComponent";
 import { Health } from "./components/HealthComponent";
 import { HealthBarRenderSystem } from "./systems/render/HealthBarRenderSystem";
 import { AsteroidDeathSystem } from "./systems/simulation/AsteroidDeathSystem";
 import { ParticleSystem } from "./systems/simulation/ParticleSystem";
 import { ProjectileDamageSystem } from "./systems/simulation/ProjectileDamageSystem";
-import { createPropertyAnimationsComponent } from "./components/PropertyAnimationComponent";
-import { InterpolationRegistry } from "./animation/Interpolator";
+import { InterpolationRegistry } from "./animation/Interpolators";
 import { PropertyAnimationSystem } from "./systems/simulation/animation/PropertyAnimationSystem";
+import { Thruster } from "./components/ThrusterComponent";
+import { Physics } from "./components/PhysicsComponent";
+import { artilleryShell, spawnProjectile } from "./Projectiles";
+import { calculateRectangleMomentOfInertia } from "./Utils";
+import { createSpriteEntity, SpriteImages } from "./Sprites";
+import { createAsteroid } from "./asteroids";
 
-const canvasToImage = ImageUtils.canvasToImage,
-    loadImage = ImageUtils.loadImage,
-    boundedRandom = MathUtils.boundedRandom;
+export const maxVelocity = 2.5 * 2.99792458
+const boundedRandom = MathUtils.boundedRandom;
 
-function createGlowingStar(spikes, outerRadius, innerRadius, glowRadius) {
-    const size = glowRadius * 2;
-    const offCanvas = document.createElement("canvas");
-    offCanvas.width = offCanvas.height = size;
-    const offCtx = offCanvas.getContext("2d");
-    const cx = size / 2;
-    const cy = size / 2;
-
-    // Glow
-    const glow = offCtx.createRadialGradient(cx, cy, innerRadius, cx, cy, glowRadius);
-    glow.addColorStop(0, "rgba(255, 255, 150, 0.5)");
-    glow.addColorStop(1, "rgba(255, 255, 150, 0)");
-
-    offCtx.fillStyle = glow;
-    offCtx.beginPath();
-    offCtx.arc(cx, cy, glowRadius, 0, 2 * Math.PI);
-    offCtx.fill();
-
-    // Star path
-    offCtx.beginPath();
-    const step = Math.PI / spikes;
-    let rotation = Math.PI / 2 * 3;
-
-    offCtx.moveTo(cx, cy - outerRadius);
-    for (let i = 0; i < spikes; i++) {
-        let x = cx + Math.cos(rotation) * outerRadius;
-        let y = cy + Math.sin(rotation) * outerRadius;
-        offCtx.lineTo(x, y);
-        rotation += step;
-
-        x = cx + Math.cos(rotation) * innerRadius;
-        y = cy + Math.sin(rotation) * innerRadius;
-        offCtx.lineTo(x, y);
-        rotation += step;
-    }
-    offCtx.closePath();
-
-    offCtx.fillStyle = "#FFD700";
-    offCtx.fill();
-    offCtx.strokeStyle = "#FFF";
-    offCtx.lineWidth = 1.2;
-    offCtx.stroke();
-
-    return offCanvas;
-}
-
-function renderSingleNeonLaserSprite({
-    width = 256,
-    height = 128,
-    laserLength = 64,
-    laserWidth = 16,
-    color = "cyan"
-} = {}) {
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    // Fill background with transparency for sprite use
-    ctx.clearRect(0, 0, width, height);
-
-    ctx.save();
-    ctx.translate(centerX, centerY);
-
-    // Create glowing linear gradient for the laser core
-    const gradient = ctx.createLinearGradient(-laserLength / 2, 0, laserLength / 2, 0);
-    gradient.addColorStop(0, "transparent");
-    gradient.addColorStop(0.3, color);
-    gradient.addColorStop(0.7, color);
-    gradient.addColorStop(1, "transparent");
-
-    ctx.shadowBlur = 24;
-    ctx.shadowColor = color;
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, laserLength / 2, laserWidth / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    return canvas;
-}
-
-function loadImg(assetPath: string) {
-    return loadImage(`${assetRoot}/${assetPath}`);
-}
-
-const laserShotCanvas = renderSingleNeonLaserSprite();
-const laserShotTexture = canvasToImage(laserShotCanvas);
-
-export const assetRoot = "/assets";
-export const backgroundTileImage = await loadImg("background/space_background_tile.png");
-export const asteroidImage = await loadImg("asteroid/asteroid1.png");
-export const shipImage = await loadImg("ship/ship1.png");
-const starImage = canvasToImage(createGlowingStar(3, 3, 5, 40));
-
-function generateChunk(worldContext: WorldContext, chunkIndex: ChunkIndex, chunkSize: number): ChunkMeta {
+function generateChunk(
+    worldContext: WorldContext,
+    chunkIndex: ChunkIndex,
+    chunkSize: number
+): ChunkMeta {
     const chunkCenter = getChunkCenterFromIndex(chunkIndex[0], chunkIndex[1], chunkSize);
     // Creates background
     let chunkEntity = createSpriteEntity(
         chunkCenter,
         0,
-        backgroundTileImage,
+        SpriteImages.backgroundTileImage,
         0,
-        chunkSize / backgroundTileImage.width
+        {
+            x: chunkSize,
+            y: chunkSize
+        }
+
     );
 
     const halfChunkSize = chunkSize / 2;
@@ -183,8 +94,10 @@ function generateChunk(worldContext: WorldContext, chunkIndex: ChunkIndex, chunk
         sgap = asteroidProbability / (nSubDivision * nSubDivision);
     const minVelocity = 0.08, maxVelocity = 0.32,
         maxAngularVelocity = 1.2;
-    const minSize = 0.06,
-        maxSize = 0.20;
+    const minSize = 0.08,
+        maxSize = 0.40;
+    const minDensity = 10,
+        maxDensity = 22;
 
     for (let i = 0; i < nSubDivision; i++)
         for (let j = 0; j < nSubDivision; j++) {
@@ -206,9 +119,19 @@ function generateChunk(worldContext: WorldContext, chunkIndex: ChunkIndex, chunk
                     }),
                 boundedRandom(minVelocity, maxVelocity)
             );
-            let angularVelocity = boundedRandom(minVelocity, maxAngularVelocity);
-            let scale = boundedRandom(minSize, maxSize);
-            createAsteroid(asteroidPosition, asteroidRotation, asteroidVelocity, angularVelocity, scale);
+            const angularVelocity = boundedRandom(minVelocity, maxAngularVelocity);
+            const size = boundedRandom(minSize, maxSize);
+            const density = boundedRandom(minDensity, maxDensity);
+            createAsteroid({
+                position: asteroidPosition,
+                velocity: asteroidVelocity,
+                rotation: asteroidRotation,
+                angularVelocity,
+                width: size,
+                options: {
+                    density
+                }
+            });
         }
 
     const chunkMeta = createChunk(
@@ -484,7 +407,7 @@ let kinematicSystem = new KinematicSystem(clientContext),
     movementControlSystem = new MovementControlSystem(),
     viewportSystem = new ViewportSystem(clientContext),
     projectileSystem = new ProjectileSystem(engine),
-    firingSystem = new FiringSystem(engine, p => spawnProjectile(p.position, p.velocity, p.rotation, p.angularVelocity, p.deathTime, p.generation, 0.5, p.size)),
+    firingSystem = new FiringSystem(engine, spawnProjectile),
     cursorSystem = new CursorSystem(engine),
     chunkLoadingSystem = new ChunkLoadingSystem(engine, worldContext),
     chunkUnloadingSystem = new ChunkUnloadingSystem(engine, worldContext),
@@ -496,7 +419,7 @@ let kinematicSystem = new KinematicSystem(clientContext),
     worldPreRenderSystem = new WorldPreRenderSystem(clientContext),
     viewportRenderSystem = new ViewportRenderSystem(renderContext),
     debugInfoDisplaySystem = new DebugInfoDisplaySystem(clientContext),
-    spriteRenderSystem = new SpriteRenderSystem(renderContext),
+    spriteRenderSystem = new SpriteRenderSystem(renderer),
     boundingBoxRenderSystem = new BoundingBoxRenderSystem(clientContext),
     axisRenderSystem = new AxisRenderSystem(clientContext),
     chunkBorderRenderSystem = new ChunkBorderRenderSystem(clientContext),
@@ -547,8 +470,14 @@ const MC_POS = Position.createComponent({
 
 CAMERA.target.data.position = MC_POS.data;
 
-const MC_SCALE = 0.2 / shipImage.height;
 function initMainCharacter(): ECSEntityId {
+    const modelScaleFactor = 1 / 555;
+    const shipImage = SpriteImages.shipImage;
+    const shipImageAspectRatio = shipImage.height / shipImage.width;
+    const height = 0.2
+    const width = height / shipImageAspectRatio;
+    const area = width * height;
+    const mass = 3e9 * modelScaleFactor;
     return Fluid.createEntityWithComponents(
         MC_POS,
         Velocity.createComponent(
@@ -565,26 +494,28 @@ function initMainCharacter(): ECSEntityId {
         ProjectileSource.createComponent({
             muzzleSpeed: 1.2 * 2.99792458,
             fireRate: 14,
-            projectileLifeTime: 1.5,
-            projectileSize: 0.180,
+            projectileWidth: 0.035,
+            projectileType: artilleryShell,
             lastFireTime: 0,
-            transform: { scale: shipImage.width * MC_SCALE * 1.5 / 2 }
+            transform: {
+                scale: height * 1.1 / 2
+            }
         }),
         RenderCenter.createComponent({ renderDistance: renderDistance }),
         Sprite.createComponent(
             {
                 image: shipImage,
                 zIndex: 5,
+                renderSize: { x: width, y: height },
                 transform: {
-                    scale: MC_SCALE,
                     rotate: Math.PI / 2
                 }
             }),
         BoundingBox.createComponent(
             createBoundingBox(
                 {
-                    width: MC_SCALE * shipImage.width,
-                    height: MC_SCALE * shipImage.height
+                    width: width,
+                    height: height
                 },
                 {
                     transform: {
@@ -593,6 +524,13 @@ function initMainCharacter(): ECSEntityId {
                 }
             )),
         ChunkOccupancy.createComponent({ chunkKeys: new Set() }),
+        Physics.createComponent({
+            mass: mass,
+            centerOfMassOffset: { x: 0, y: 0 },
+            area: area,
+            momentOfInertia: calculateRectangleMomentOfInertia(mass, width, height)
+        }),
+        Thruster.createComponent({ maxForce: 4.4e9 * modelScaleFactor }),
         MOVEMENT_CONTROL_COMPONENT,
         FIRE_CONTROL_COMPONENT,
         Health.createComponent({ maxHealth: 100, currentHealth: 60 })
@@ -641,113 +579,6 @@ window.addEventListener("mousedown", (event: MouseEvent) => {
 canvasElement.addEventListener("mouseup", (event: MouseEvent) => {
     MOUSE_KEY_STATES[event.button] = false;
 });
-
-export function createSpriteEntity(position: Vec2, rotation: number, spriteTexture: HTMLImageElement, zIndex: number, scale = 1): ECSEntityId {
-    return Fluid.createEntityWithComponents(
-        Position.createComponent({
-            position,
-            rotation
-        }),
-        Sprite.createComponent({
-            image: spriteTexture,
-            zIndex,
-            transform: {
-                scale
-            }
-        })
-    )
-}
-
-function transformScaleLerpBulge(
-    from: { scale: number },
-    to: { scale: number },
-    timeElapsed: number,
-    totalDuration: number
-): { scale: number } {
-    return {
-        scale: MathUtils.lerp(from.scale, to.scale, Math.sin(Math.PI * timeElapsed / totalDuration))
-    };
-}
-
-const transformScaleLerpId = InterpolationRegistry.registerInterpolation(transformScaleLerpBulge, "LERP(transform.scale)");
-
-export function createAsteroid(position: Vec2, rotation: number, velocity: Vec2, angularVelocity: number, size: number): ECSEntityId {
-    const initialSpriteScale = size / asteroidImage.width;
-    const health = 60 * size;
-    const initialSpriteTransform = { scale: initialSpriteScale };
-    const entity = createSpriteEntity(Vector2.copy(position), rotation, asteroidImage, 3, initialSpriteScale);
-    Fluid.addEntityComponents(entity,
-        Velocity.createComponent({
-            velocity,
-            angular: angularVelocity
-        }),
-        ChunkOccupancy.createComponent({ chunkKeys: new Set() }),
-        BoundingBox.createComponent(createBoundingBox({ width: size, height: size })),
-        Health.createComponent({ maxHealth: health, currentHealth: health }),
-        Asteroid.createComponent({ size }),
-        createPropertyAnimationsComponent(
-            [
-                [
-                    // Sprite animations
-                    Sprite,
-                    [
-                        // damaged animation
-                        {
-                            propertyName: 'transform',
-                            beginningValue: initialSpriteTransform,
-                            endingValue: { scale: initialSpriteScale * 1.20 },
-                            completed: true,
-                            duration: 0.15,
-                            elapsed: 0,
-                            onComplete(entityId, propertyAnimationComponent) {
-                                const transform = propertyAnimationComponent.animations.get(Sprite.getId().getSymbol()).get('transform');
-                                transform.completed = true;
-                            },
-                            interpolationId: transformScaleLerpId
-                        }
-                    ]
-                ]
-            ]
-        )
-    );
-    return entity;
-}
-
-export function spawnProjectile(position: Vec2, velocity: Vec2, rotation: number, angularVelocity: number, deathTime: number, generation: number, damage: number = 0, size: number = 0.001): ECSEntityId {
-    const entity = createSpriteEntity(
-        position,
-        rotation,
-        laserShotTexture,
-        0,
-        size / laserShotTexture.width
-    );
-    Fluid.addEntityComponents(entity,
-        Velocity.createComponent({
-            velocity: velocity,
-            angular: angularVelocity
-        }),
-        Projectile.createComponent({
-            deathTime: deathTime,
-            generation: generation,
-            damage
-        }),
-        Acceleration.createComponent({
-            acceleration: { x: 0, y: 0 },
-            angular: 0
-        }),
-        BoundingBox.createComponent(
-            createBoundingBox(
-                {
-                    width: size,
-                    height: size
-                },
-                { transform: { scale: 0.10 } }
-            )
-        ),
-        ChunkOccupancy.createComponent({ chunkKeys: new Set() })
-    );
-    return entity;
-}
 
 engine.animate();
 console.log("Asteroid Journey Started!");

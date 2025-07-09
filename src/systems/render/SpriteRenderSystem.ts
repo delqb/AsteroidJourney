@@ -9,7 +9,8 @@ import { ECSNode } from "fluidengine/v0/api";
 import { FluidSystem } from "fluidengine/v0/internal";
 import { Transform } from "fluidengine/v0/lib";
 import { Position } from "../../components/PositionComponent";
-import { Sprite } from "../../components/SpriteComponent";
+import { Sprite, SpriteComponent } from "../../components/SpriteComponent";
+import { CanvasRenderer } from "../../client/renderer/Renderer";
 
 
 const schema = {
@@ -21,42 +22,67 @@ const nodeMeta = Fluid.registerNodeSchema(schema, "Sprite Render");
 
 export class SpriteRenderSystem extends FluidSystem<Schema> {
 
-    constructor(private renderContext: CanvasRenderingContext2D) {
+    constructor(
+        private canvasRenderer: CanvasRenderer
+    ) {
         super("Sprite Render System", nodeMeta);
     }
 
     public updateNodes(nodes: Iterable<ECSNode<Schema>>): void {
-        const ctx = this.renderContext;
         for (const node of Array.from(nodes).sort((a, b) => a.spriteTexture.zIndex - b.spriteTexture.zIndex)) {
             const { position, spriteTexture: sprite } = node;
             const { x, y } = position.position;
 
             this.renderSprite(
-                ctx,
-                sprite.image,
+                sprite,
                 x,
                 y,
-                position.rotation,
-                sprite.transform
+                position.rotation
             );
         }
 
 
     }
 
-    private renderSprite(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, rotation: number, transform: Transform | undefined) {
+    private renderSprite(
+        sprite: SpriteComponent,
+        x: number,
+        y: number,
+        rotation: number
+    ) {
+        const ctx = this.canvasRenderer.renderContext;
+        const {
+            renderSize,
+            transform,
+            image
+        } = sprite;
+        const {
+            x: width,
+            y: height
+        } = renderSize;
+
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(rotation);
 
         if (transform) {
-            const { translate: trans, rotate: rot, scale } = transform;
-            if (rot) ctx.rotate(rot);
-            if (trans) ctx.translate(trans.x, trans.y);
+            const {
+                translate,
+                rotate,
+                scale
+            } = transform;
+
+            if (rotate) ctx.rotate(rotate);
+            if (translate) ctx.translate(translate.x, translate.y);
             if (scale) ctx.scale(scale, scale);
         }
 
-        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        ctx.scale(
+            width / image.width,
+            height / image.height
+        );
+
+        ctx.drawImage(image, -image.width / 2, -image.height / 2);
         ctx.restore();
     }
 }

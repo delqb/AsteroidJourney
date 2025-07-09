@@ -5,11 +5,12 @@
 */
 
 import { Fluid } from "fluidengine/v0";
-import { Transform } from "fluidengine/v0/lib";
+import { Transform, Vec2 } from "fluidengine/v0/lib";
 
 
 export interface SpriteComponent {
     image: HTMLImageElement;
+    renderSize: Vec2;
     transform?: Transform;
     zIndex: number;
     alpha?: number;
