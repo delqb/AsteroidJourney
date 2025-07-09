@@ -6,6 +6,7 @@
 
 import { Fluid } from "fluidengine/v0";
 import { Transform } from "fluidengine/v0/lib";
+import { ProjectileType } from "../Projectiles";
 
 
 export interface ProjectileSourceComponent {
@@ -13,8 +14,8 @@ export interface ProjectileSourceComponent {
     muzzleSpeed: number;
     fireRate: number;
     lastFireTime: number;
-    projectileSize: number;
-    projectileLifeTime: number;
+    projectileWidth: number;
+    projectileType: ProjectileType;
 }
 
 export const ProjectileSource = Fluid.defineComponentType<ProjectileSourceComponent>("Projectile Source");
