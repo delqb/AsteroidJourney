@@ -13,7 +13,6 @@ export class AccelerationComponent {
         public acceleration: Vec2,
         public angular: number
     ) {
-
     }
 }
 
