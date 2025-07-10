@@ -13,7 +13,7 @@ import { Asteroid } from "../../components/AsteroidComponent";
 import { EntityDeath } from "../../components/EntityDeathComponent";
 import { Position } from "../../components/PositionComponent";
 import { Velocity } from "../../components/VelocityComponent";
-import { createAsteroidParticle } from "../../asteroids";
+import { createAsteroidParticle } from "../../Asteroids";
 
 const schema = {
     asteroid: Asteroid,

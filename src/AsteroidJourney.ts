@@ -63,7 +63,7 @@ import { Physics } from "./components/PhysicsComponent";
 import { artilleryShell, spawnProjectile } from "./Projectiles";
 import { calculateRectangleMomentOfInertia } from "./Utils";
 import { createSpriteEntity, SpriteImages } from "./Sprites";
-import { createAsteroid } from "./asteroids";
+import { createAsteroid } from "./Asteroids";
 
 export const maxVelocity = 2.5 * 2.99792458
 const boundedRandom = MathUtils.boundedRandom;
@@ -171,7 +171,6 @@ const renderer = new CanvasRenderer(
     });
 
 let renderDistance: number = 5;
-
 
 export const CAMERA = {
     position: Position.createComponent({
