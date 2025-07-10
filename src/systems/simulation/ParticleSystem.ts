@@ -24,10 +24,13 @@ export class ParticleSystem extends FluidSystem<Schema> {
     }
 
     updateNode(node: ECSNode<Schema>): void {
+        const gameTime = this.clientContext.engineInstance.getGameTime();
         const { entityId, lifetime } = node;
-        const { lifeDuration, spawnTime } = lifetime;
+        let { lifeDuration, spawnTime } = lifetime;
+        if (spawnTime <= 0)
+            spawnTime = gameTime;
         const deathTime = spawnTime + lifeDuration;
-        if (this.clientContext.engineInstance.getGameTime() >= deathTime)
+        if (gameTime >= deathTime)
             Fluid.removeEntity(entityId);
     }
 }
