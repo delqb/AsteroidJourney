@@ -64,6 +64,7 @@ import { artilleryShell, spawnProjectile } from "./Projectiles";
 import { calculateRectangleMomentOfInertia } from "./Utils";
 import { createSpriteEntity, SpriteImages } from "./Sprites";
 import { createAsteroid } from "./Asteroids";
+import { CellRenderSystem, ChildPositionTransformSystem, createCellDeathSystem, createCellHiveHealthSystem, createSquareFromCells, Metal1Material } from "./Cells";
 
 export const maxVelocity = 2.5 * 2.99792458
 const boundedRandom = MathUtils.boundedRandom;
@@ -442,12 +443,16 @@ simulationPhase.pushSystems(
     pojectileDamageSystem,
     new AsteroidDeathSystem(clientContext),
     new ParticleSystem(clientContext),
-    new PropertyAnimationSystem(engine, InterpolationRegistry.resolveInterpolator)
+    new PropertyAnimationSystem(engine, InterpolationRegistry.resolveInterpolator),
+    new ChildPositionTransformSystem(),
+    createCellDeathSystem({}),
+    createCellHiveHealthSystem({})
 );
 
 worldRenderPhase.pushSystems(
     worldPreRenderSystem,
     spriteRenderSystem,
+    new CellRenderSystem(renderContext),
     occupiedChunkHighlightingSystem,
     chunkBorderRenderSystem,
     boundingBoxRenderSystem,
@@ -581,3 +586,12 @@ canvasElement.addEventListener("mouseup", (event: MouseEvent) => {
 
 engine.animate();
 console.log("Asteroid Journey Started!");
+
+createSquareFromCells(
+    { x: 0, y: 0 },
+    1,
+    16,
+    Metal1Material,
+    100,
+    { angularVelocity: 0.12 }
+);
