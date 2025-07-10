@@ -77,7 +77,7 @@ export function createAsteroid(
         }),
         ChunkOccupancy.createComponent({ chunkKeys: new Set() }),
         BoundingBox.createComponent(createBoundingBox({ width, height })),
-        Health.createComponent({ maxHealth: health, currentHealth: health }),
+        Health.createComponent({ maxHealth: health, currentHealth: health, visible: true }),
         createPropertyAnimationsComponent(
             [
                 [

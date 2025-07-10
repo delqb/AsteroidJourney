@@ -66,6 +66,8 @@ export class HealthBarRenderSystem extends FluidSystem<Schema> {
     updateNode(node: ECSNode<Schema>): void {
         const ctx = this.renderContext;
         const { position, health } = node;
+        if (!health.visible)
+            return;
         const { x, y } = position.position;
         const { currentHealth, maxHealth } = health;
         const healthPercent = currentHealth / maxHealth;

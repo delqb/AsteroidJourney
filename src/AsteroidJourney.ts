@@ -532,7 +532,7 @@ function initMainCharacter(): ECSEntityId {
         Thruster.createComponent({ maxForce: 4.4e9 * modelScaleFactor }),
         MOVEMENT_CONTROL_COMPONENT,
         FIRE_CONTROL_COMPONENT,
-        Health.createComponent({ maxHealth: 100, currentHealth: 60 })
+        Health.createComponent({ maxHealth: 100, currentHealth: 60, visible: true })
     );
 }
 
