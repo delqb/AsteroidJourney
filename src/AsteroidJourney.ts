@@ -96,8 +96,8 @@ function generateChunk(
         maxAngularVelocity = 1.2;
     const minSize = 0.08,
         maxSize = 0.40;
-    const minDensity = 10,
-        maxDensity = 22;
+    const minDensity = 1,
+        maxDensity = 2.2;
 
     for (let i = 0; i < nSubDivision; i++)
         for (let j = 0; j < nSubDivision; j++) {

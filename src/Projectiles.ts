@@ -36,8 +36,8 @@ export interface ProjectileType {
 
 export const artilleryShell: ProjectileType = {
     lifeTime: 5,
-    damage: 10,
-    density: 18,
+    damage: 0.0015,
+    density: 1.8,
     spriteImage: SpriteImages.projectile.artilleryShellImage
 }
 

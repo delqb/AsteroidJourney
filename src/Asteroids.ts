@@ -29,6 +29,8 @@ export interface AsteroidCreationOptions {
     density?: number;
     health?: number;
     deriveHealth?: (mass: number, size: number) => number;
+    damageAnimationScalePercent?: number;
+    damageAnimationDuration?: number;
 }
 
 export function createAsteroid(
@@ -41,12 +43,18 @@ export function createAsteroid(
         options = {}
     }: AsteroidCreationParameters
 ): ECSEntityId {
-    const {
-        spriteImage = SpriteImages.asteroidImage,
-        density = 32,
-        health: optionalHealth,
-        deriveHealth = (mass: number, area: number) => mass * (1 - 1 / (1 + area))
-    }: AsteroidCreationOptions = options;
+    const
+        {
+
+            spriteImage = SpriteImages.asteroidImage,
+            density = 3.2,
+            health: optionalHealth,
+            deriveHealth = (mass: number, area: number) => mass * area,
+            damageAnimationScalePercent = 1.11,
+            damageAnimationDuration = 0.15
+
+        }: AsteroidCreationOptions = options;
+
     const aspectRatio = spriteImage.height / spriteImage.width;
     const height = width * aspectRatio;
     const area = width * height;
@@ -88,9 +96,9 @@ export function createAsteroid(
                         {
                             propertyName: 'transform',
                             beginningValue: sizeTransform,
-                            endingValue: { scale: 1.25 },
+                            endingValue: { scale: damageAnimationScalePercent },
                             completed: true,
-                            duration: 0.15,
+                            duration: damageAnimationDuration,
                             elapsed: 0,
                             onComplete(entityId, propertyAnimationComponent) {
                                 const transform = propertyAnimationComponent.animations.get(Sprite.getId().getSymbol()).get('transform');
