@@ -29,19 +29,18 @@ export class SpriteRenderSystem extends FluidSystem<Schema> {
     }
 
     public updateNodes(nodes: Iterable<ECSNode<Schema>>): void {
-        for (const node of Array.from(nodes).sort((a, b) => a.spriteTexture.zIndex - b.spriteTexture.zIndex)) {
-            const { position, spriteTexture: sprite } = node;
-            const { x, y } = position.position;
+        const sortedNodes = Array.from(nodes).sort(
+            (a, b) => a.spriteTexture.zIndex - b.spriteTexture.zIndex
+        );
 
+        for (const { position, spriteTexture: sprite } of sortedNodes) {
             this.renderSprite(
                 sprite,
-                x,
-                y,
+                position.position.x,
+                position.position.y,
                 position.rotation
             );
         }
-
-
     }
 
     private renderSprite(
@@ -49,39 +48,21 @@ export class SpriteRenderSystem extends FluidSystem<Schema> {
         x: number,
         y: number,
         rotation: number
-    ) {
+    ): void {
         const ctx = this.canvasRenderer.renderContext;
-        const {
-            renderSize,
-            transform,
-            image
-        } = sprite;
-        const {
-            x: width,
-            y: height
-        } = renderSize;
+        const { renderSize: { x: width, y: height }, transform, image } = sprite;
 
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(rotation);
 
         if (transform) {
-            const {
-                translate,
-                rotate,
-                scale
-            } = transform;
-
-            if (rotate) ctx.rotate(rotate);
-            if (translate) ctx.translate(translate.x, translate.y);
-            if (scale) ctx.scale(scale, scale);
+            if (transform.rotate) ctx.rotate(transform.rotate);
+            if (transform.translate) ctx.translate(transform.translate.x, transform.translate.y);
+            if (transform.scale) ctx.scale(transform.scale, transform.scale);
         }
 
-        ctx.scale(
-            width / image.width,
-            height / image.height
-        );
-
+        ctx.scale(width / image.width, height / image.height);
         ctx.drawImage(image, -image.width / 2, -image.height / 2);
         ctx.restore();
     }
