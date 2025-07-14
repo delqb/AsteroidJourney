@@ -16,3 +16,6 @@ export function calculateRectangleMomentOfInertia(
     };
 }
 
+export interface DeltaTimeProvider {
+    (): number;
+}

@@ -403,7 +403,7 @@ sysman.pushPhases(simulationPhase, worldRenderPhase, hudRenderPhase);
 
 let kinematicSystem = new KinematicSystem(clientContext),
     positionSystem = new PositionSystem(engine),
-    movementControlSystem = new MovementControlSystem(),
+    movementControlSystem = new MovementControlSystem(() => engine.getDeltaTime()),
     viewportSystem = new ViewportSystem(clientContext),
     projectileSystem = new ProjectileSystem(engine),
     firingSystem = new FiringSystem(engine, spawnProjectile),
@@ -529,7 +529,7 @@ function initMainCharacter(): ECSEntityId {
             area: area,
             momentOfInertia: calculateRectangleMomentOfInertia(mass, width, height)
         }),
-        Thruster.createComponent({ maxForce: 4.4e9 * modelScaleFactor }),
+        Thruster.createComponent({ maxForce: 1.75 * 4.4e9 * modelScaleFactor }),
         MOVEMENT_CONTROL_COMPONENT,
         FIRE_CONTROL_COMPONENT,
         Health.createComponent({ maxHealth: 100, currentHealth: 60, visible: true })
