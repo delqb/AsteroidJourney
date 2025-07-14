@@ -22,7 +22,9 @@ type Schema = typeof schema;
 const nodeMeta = Fluid.registerNodeSchema(schema, "Kinematic");
 
 export class KinematicSystem extends FluidSystem<Schema> {
-    constructor(public clientContext: ClientContext) {
+    constructor(
+        public clientContext: ClientContext,
+    ) {
         super("Kinematic System", nodeMeta);
     }
     public updateNode(node: ECSNode<Schema>): void {
