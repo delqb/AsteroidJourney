@@ -62,8 +62,9 @@ import { Thruster } from "./components/ThrusterComponent";
 import { Physics } from "./components/PhysicsComponent";
 import { artilleryShell, spawnProjectile } from "./Projectiles";
 import { calculateRectangleMomentOfInertia } from "./Utils";
-import { createSpriteEntity, SpriteImages } from "./Sprites";
+import { createGlowingStar, createSpriteEntity, SpriteImages } from "./Sprites";
 import { createAsteroid } from "./Asteroids";
+import { PrototypeRenderContext, prototypeTestInit, renderAll, SpriteRenderable } from "./prototype/render/Rendering";
 
 export const maxVelocity = 2.5 * 2.99792458
 const boundedRandom = MathUtils.boundedRandom;
@@ -242,13 +243,13 @@ const KEYBOARD_CONTROLS = {
         }
     },
     yawLeft: {
-        keys: ["q"],
+        keys: ["q", "arrowleft"],
         action: () => {
             MOVEMENT_CONTROL_COMPONENT.data.yawInput -= 1;
         }
     },
     yawRight: {
-        keys: ["e"],
+        keys: ["e", "arrowright"],
         action: () => {
             MOVEMENT_CONTROL_COMPONENT.data.yawInput += 1;
         }
@@ -381,10 +382,13 @@ const simulationPhase = new FluidSystemPhase(
     }
 );
 
+const prototypeRenderContext: PrototypeRenderContext = { deltaTime: 0 };
 const worldRenderPhase = new FluidSystemPhase(
     "World Render Phase",
     () => { },
     () => {
+        prototypeRenderContext.deltaTime = engine.getDeltaTime();
+        renderAll(prototypeRenderContext);
         renderContext.restore();
     }
 );
@@ -578,6 +582,50 @@ window.addEventListener("mousedown", (event: MouseEvent) => {
 canvasElement.addEventListener("mouseup", (event: MouseEvent) => {
     MOUSE_KEY_STATES[event.button] = false;
 });
+(() => {
+    const maxOffsetX = 4;
+    const maxOffsetY = 4;
+    const minLength = 0.05;
+    const maxLength = 0.8;
+    const minSpikes = 3;
+    const maxSpikes = 12;
+    const minOuterRadius = 16;
+    const maxOuterRadius = 32;
+    const minInnerRadius = 4;
+    const maxInnerRadius = 16;
+    const minGlowRadius = 128;
+    const maxGlowRadius = 256;
+    prototypeTestInit(
+        renderContext,
+        [...Array(20).keys()].map(
+            i => {
+                const x = boundedRandom(-maxOffsetX, maxOffsetX);
+                const y = boundedRandom(-maxOffsetY, maxOffsetY);
+                const rotation = boundedRandom(0, Math.PI * 2);
+                const width = boundedRandom(2 * minLength, maxLength);
+                const height = boundedRandom(2 * minLength, maxLength);
+                const spikes = boundedRandom(minSpikes, maxSpikes);
+                const outerRadius = boundedRandom(minOuterRadius, maxOuterRadius);
+                const innerRadius = boundedRandom(minInnerRadius, maxInnerRadius);
+                const glowRadius = boundedRandom(minGlowRadius, maxGlowRadius);
+                const image = createGlowingStar(
+                    spikes,
+                    outerRadius,
+                    innerRadius,
+                    glowRadius
+                )
+
+                return {
+                    position: { x, y },
+                    renderSize: { x: width, y: height },
+                    rotation,
+                    image
+                } as SpriteRenderable;
+            }
+        )
+    );
+})()
 
 engine.animate();
 console.log("Asteroid Journey Started!");
+console.log(canvasElement); 

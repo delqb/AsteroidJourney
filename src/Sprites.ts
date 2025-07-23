@@ -29,7 +29,12 @@ export function createSpriteEntity(
 const canvasToImage = ImageUtils.canvasToImage;
 const loadImage = ImageUtils.loadImage;
 
-function createGlowingStar(spikes, outerRadius, innerRadius, glowRadius) {
+export function createGlowingStar(
+    spikes: number,
+    outerRadius: number,
+    innerRadius: number,
+    glowRadius: number
+): HTMLImageElement {
     const size = glowRadius * 2;
     const offCanvas = document.createElement("canvas");
     offCanvas.width = offCanvas.height = size;
@@ -72,7 +77,7 @@ function createGlowingStar(spikes, outerRadius, innerRadius, glowRadius) {
     offCtx.lineWidth = 1.2;
     offCtx.stroke();
 
-    return offCanvas;
+    return canvasToImage(offCanvas);
 }
 
 function renderSingleNeonLaserSprite({

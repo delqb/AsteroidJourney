@@ -97,7 +97,7 @@ export const DefaultMovementControlParameters: MovementControlParameters = {
 
     axialStabilizationFactor: 0.25,
     lateralStabilizationFactor: 0.80,
-    angularStabilizationFactor: 0.75,
+    angularStabilizationFactor: 5,
 
     axialAccelerationCurveControlFactor: -0.6,
     angularAccelerationCurveControlFactor: -0.6
