@@ -3,7 +3,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "target": "esnext",
+    "target": "es2022",
     "outDir": "dist",
     "rootDir": ".",
   },
