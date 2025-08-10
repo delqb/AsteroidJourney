@@ -16,7 +16,6 @@
   },
   "scripts": {
     "clean": "rmdir /s /q .\\dist",
-    "reloadfluid": "npm uninstall fluidengine --no-save && npm install fluidengine",
-    "prepare": "tsc"
+    "reloadfluid": "npm uninstall fluidengine --no-save && npm install fluidengine"
   }
 }
