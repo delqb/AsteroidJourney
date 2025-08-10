@@ -6,8 +6,10 @@
     "fluidengine local package tarball file path",
     "file:../FluidEngine/fluidengine-0.0.0.tgz"
   ],
-  "dependencies": {
-    "fluidengine": "github:delqb/FluidEngine#dev"
+  "disabled_dependencies": {
+    "dependencies": {
+      "fluidengine": "github:delqb/FluidEngine#dev"
+    }
   },
   "devDependencies": {
     "typescript": "^5.8.3",
