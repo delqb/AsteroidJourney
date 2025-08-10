@@ -1307,7 +1307,7 @@ async function main() {
   }
   try {
     console.log("Starting Asteroid Journey...");
-    await __vitePreload(() => import("./AsteroidJourney-Bi0BmP__.js"), true ? [] : void 0);
+    await __vitePreload(() => import("./AsteroidJourney-D7RlnESW.js"), true ? [] : void 0).then((m) => m.start());
   } catch (err) {
     console.error("Failed to load AsteroidJourney module:", err);
   }

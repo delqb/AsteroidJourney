@@ -20,7 +20,7 @@ async function main() {
 
     try {
         console.log("Starting Asteroid Journey...");
-        await import("./AsteroidJourney");
+        await import("./AsteroidJourney").then(m => m.start());
     } catch (err) {
         console.error("Failed to load AsteroidJourney module:", err);
     }
