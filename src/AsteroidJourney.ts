@@ -29,10 +29,10 @@ import {
 } from "./systems";
 import { OccupiedChunkHighlightingSystem } from "./systems/render/debug/OccupiedChunkHighlightingSystem";
 import { WorldContext } from "./world/World";
-import { Fluid } from "fluidengine/v0";
-import { ECSEntityId } from "fluidengine/v0/api";
-import { FluidEngine, FluidSystemPhase } from "fluidengine/v0/internal";
-import { ChunkIndex, ChunkMeta, getChunkCenterFromIndex, Vector2, createChunk, ChunkState, Vec2, MathUtils, Transform } from "fluidengine/v0/lib";
+import { Fluid } from "fluidengine";
+import { ECSEntityId } from "fluidengine";
+import { FluidEngine, FluidSystemPhase } from "fluidengine/internal";
+import { ChunkIndex, ChunkMeta, getChunkCenterFromIndex, Vector2, createChunk, ChunkState, Vec2, MathUtils, Transform } from "fluidengine";
 import { HealthBarRenderSystem } from "./systems/render/HealthBarRenderSystem";
 import { AsteroidDeathSystem } from "./systems/simulation/AsteroidDeathSystem";
 import { ParticleSystem } from "./systems/simulation/ParticleSystem";

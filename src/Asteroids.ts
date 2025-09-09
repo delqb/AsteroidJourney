@@ -1,7 +1,7 @@
-import { ECSEntityId } from "fluidengine/v0/api";
-import { Transform, Vec2, Vector2 } from "fluidengine/v0/lib";
+import { ECSEntityId } from "fluidengine";
+import { Transform, Vec2, Vector2 } from "fluidengine";
 import { createSpriteEntity, SpriteImages } from "./Sprites";
-import { Fluid } from "fluidengine/v0";
+import { Fluid } from "fluidengine";
 import { transformScaleLerpId } from "./animation/Interpolators";
 import { Asteroid } from "./components/AsteroidComponent";
 import { BoundingBox, createBoundingBox } from "./components/BoundingBoxComponent";

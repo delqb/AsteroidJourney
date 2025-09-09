@@ -4,10 +4,10 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine/v0";
-import { ECSNode } from "fluidengine/v0/api";
-import { FluidSystem } from "fluidengine/v0/internal";
-import { Vector2 } from "fluidengine/v0/lib";
+import { Fluid } from "fluidengine";
+import { ECSNode } from "fluidengine";
+import { FluidSystem } from "fluidengine/internal";
+import { Vector2 } from "fluidengine";
 import { ClientContext } from "../../client/Client";
 import { Asteroid } from "../../components/AsteroidComponent";
 import { EntityDeath } from "../../components/EntityDeathComponent";

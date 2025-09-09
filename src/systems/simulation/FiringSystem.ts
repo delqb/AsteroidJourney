@@ -4,13 +4,13 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ECSEntityId, ECSNode } from "fluidengine/v0/api";
-import { FluidEngine, FluidSystem } from "fluidengine/v0/internal";
+import { ECSEntityId, ECSNode } from "fluidengine";
+import { FluidEngine, FluidSystem } from "fluidengine/internal";
 import { FireControl } from "../../components/FireControlComponent";
 import { Position } from "../../components/PositionComponent";
 import { ProjectileSource } from "../../components/ProjectileSourceComponent";
 import { Velocity } from "../../components/VelocityComponent";
-import { Fluid } from "fluidengine/dev";
+import { Fluid } from "fluidengine";
 import { ProjectileCreationParameters } from "../../Projectiles";
 
 

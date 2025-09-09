@@ -1,6 +1,6 @@
-import { ECSEntityId } from "fluidengine/v0/api";
-import { Vec2, Vector2 } from "fluidengine/v0/lib";
-import { Fluid } from "fluidengine/v0";
+import { ECSEntityId } from "fluidengine";
+import { Vec2, Vector2 } from "fluidengine";
+import { Fluid } from "fluidengine";
 import { Acceleration } from "./components/AccelerationComponent";
 import { BoundingBox, createBoundingBox } from "./components/BoundingBoxComponent";
 import { ChunkOccupancy } from "./components/ChunkOccupancyComponent";

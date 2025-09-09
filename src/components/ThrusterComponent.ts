@@ -1,4 +1,4 @@
-import { Fluid } from "fluidengine/v0";
+import { Fluid } from "fluidengine";
 
 export interface ThrusterComponent {
     maxForce: number;

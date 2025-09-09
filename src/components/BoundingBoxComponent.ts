@@ -4,8 +4,8 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine/v0";
-import { Vec2, RectSize, Transform, AABB, OBB, Vector2, createTransform } from "fluidengine/v0/lib";
+import { Fluid } from "fluidengine";
+import { Vec2, RectSize, Transform, AABB, OBB, Vector2, createTransform } from "fluidengine";
 
 
 export interface BoundingBoxComponent {

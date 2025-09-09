@@ -1,4 +1,4 @@
-import { ECSComponent, ECSComponentType, ECSEntityId } from "fluidengine/v0/api";
+import { ECSComponent, ECSComponentType, ECSEntityId } from "fluidengine";
 import { InterpolationId } from "./Interpolators";
 import { PropertyAnimationsComponent } from "../components/PropertyAnimationComponent";
 

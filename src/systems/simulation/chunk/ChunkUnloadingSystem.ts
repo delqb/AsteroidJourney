@@ -4,9 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ECSNode } from "fluidengine/v0/api";
-import { Fluid, FluidEngine, FluidSystem } from "fluidengine/v0/internal";
-import { ChunkState } from "fluidengine/v0/lib";
+import { ECSNode } from "fluidengine";
+import { Fluid, FluidEngine, FluidSystem } from "fluidengine/internal";
+import { ChunkState } from "fluidengine";
 import { Chunk } from "../../../components/ChunkComponent";
 import { WorldContext } from "../../../world/World";
 

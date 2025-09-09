@@ -4,9 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ECSNode } from "fluidengine/v0/api";
-import { Fluid, FluidEngine, FluidSystem } from "fluidengine/v0/internal";
-import { ChunkKey, getChunkKeyFromIndex, getChunkIndexFromPosition, ChunkState, GridUtils } from "fluidengine/v0/lib";
+import { ECSNode } from "fluidengine";
+import { Fluid, FluidEngine, FluidSystem } from "fluidengine/internal";
+import { ChunkKey, getChunkKeyFromIndex, getChunkIndexFromPosition, ChunkState, GridUtils } from "fluidengine";
 import { BoundingBox } from "../../../components/BoundingBoxComponent";
 import { ChunkOccupancy } from "../../../components/ChunkOccupancyComponent";
 import { WorldContext } from "../../../world/World";

@@ -1,6 +1,6 @@
-import { Fluid } from "fluidengine/v0";
-import { ECSEntityId } from "fluidengine/v0/api";
-import { Vec2, Transform, ImageUtils } from "fluidengine/v0/lib";
+import { Fluid } from "fluidengine";
+import { ECSEntityId } from "fluidengine";
+import { Vec2, Transform, ImageUtils } from "fluidengine";
 import { Position } from "./components/PositionComponent";
 import { Sprite } from "./components/SpriteComponent";
 

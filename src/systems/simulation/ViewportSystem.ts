@@ -4,10 +4,10 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine/v0";
-import { ECSNode } from "fluidengine/v0/api";
-import { FluidSystem } from "fluidengine/v0/internal";
-import { MathUtils, Vector2 } from "fluidengine/v0/lib";
+import { Fluid } from "fluidengine";
+import { ECSNode } from "fluidengine";
+import { FluidSystem } from "fluidengine/internal";
+import { MathUtils, Vector2 } from "fluidengine";
 import { ClientContext } from "../../client/Client";
 import { CameraSpeedFactor } from "../../components/CameraSpeedFactorComponent";
 import { Position } from "../../components/PositionComponent";

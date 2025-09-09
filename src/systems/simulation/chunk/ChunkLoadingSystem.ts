@@ -4,9 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ECSNode } from "fluidengine/v0/api";
-import { Fluid, FluidEngine, FluidSystem } from "fluidengine/v0/internal";
-import { getChunkIndexFromPosition, getChunkKeyFromIndex, ChunkState } from "fluidengine/v0/lib";
+import { ECSNode } from "fluidengine";
+import { Fluid, FluidEngine, FluidSystem } from "fluidengine/internal";
+import { getChunkIndexFromPosition, getChunkKeyFromIndex, ChunkState } from "fluidengine";
 import { Position } from "../../../components/PositionComponent";
 import { RenderCenter } from "../../../components/RenderCenterComponent";
 import { WorldContext } from "../../../world/World";
