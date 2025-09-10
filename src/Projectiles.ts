@@ -8,7 +8,8 @@ import { Physics } from "./components/PhysicsComponent";
 import { Projectile } from "./components/ProjectileComponent";
 import { Velocity } from "./components/VelocityComponent";
 import { calculateRectangleMomentOfInertia } from "./Utils";
-import { createSpriteEntity, SpriteImages } from "./Sprites";
+import { createSpriteEntity } from "./Sprites";
+import Assets, { SpriteKey } from "./Assets";
 
 
 export interface ProjectileCreationParameters {
@@ -31,14 +32,7 @@ export interface ProjectileType {
     lifeTime: number;
     damage: number;
     density: number;
-    spriteImage: HTMLImageElement;
-}
-
-export const artilleryShell: ProjectileType = {
-    lifeTime: 5,
-    damage: 0.0015,
-    density: 1.8,
-    spriteImage: SpriteImages.projectile.artilleryShellImage
+    spriteImageKey: SpriteKey;
 }
 
 export function spawnProjectile(
@@ -57,12 +51,13 @@ export function spawnProjectile(
     const {
         damage,
         density,
-        spriteImage,
+        spriteImageKey,
         lifeTime
     } = type;
 
     const {
     } = options;
+    const spriteImage = Assets.getSprite(spriteImageKey);
     const imageAspectRatio = spriteImage.height / spriteImage.width;
     const height = width * imageAspectRatio;
     const area = width * height;
@@ -72,7 +67,7 @@ export function spawnProjectile(
     const entity = createSpriteEntity(
         position,
         rotation,
-        spriteImage,
+        spriteImageKey,
         0,
         {
             x: width,

@@ -3,11 +3,12 @@ import { ECSEntityId } from "fluidengine";
 import { Vec2, Transform, ImageUtils } from "fluidengine";
 import { Position } from "./components/PositionComponent";
 import { Sprite } from "./components/SpriteComponent";
+import Assets, { SpriteKey } from "./Assets";
 
 export function createSpriteEntity(
     position: Vec2,
     rotation: number,
-    spriteTexture: HTMLImageElement,
+    spriteImageKey: SpriteKey,
     zIndex: number,
     renderSize: Vec2,
     transform?: Transform
@@ -18,7 +19,7 @@ export function createSpriteEntity(
             rotation
         }),
         Sprite.createComponent({
-            image: spriteTexture,
+            image: Assets.getSprite(spriteImageKey),
             zIndex,
             renderSize,
             transform
@@ -29,7 +30,7 @@ export function createSpriteEntity(
 const canvasToImage = ImageUtils.canvasToImage;
 const loadImage = ImageUtils.loadImage;
 
-function createGlowingStar(spikes, outerRadius, innerRadius, glowRadius) {
+export function createGlowingStar(spikes, outerRadius, innerRadius, glowRadius) {
     const size = glowRadius * 2;
     const offCanvas = document.createElement("canvas");
     offCanvas.width = offCanvas.height = size;
@@ -75,7 +76,7 @@ function createGlowingStar(spikes, outerRadius, innerRadius, glowRadius) {
     return offCanvas;
 }
 
-function renderSingleNeonLaserSprite({
+export function renderSingleNeonLaserSprite({
     width = 256,
     height = 128,
     laserLength = 64,
@@ -115,24 +116,3 @@ function renderSingleNeonLaserSprite({
     return canvas;
 }
 
-export function loadImg(assetPath: string) {
-    return loadImage(`${assetRoot}/${assetPath}`);
-}
-
-export const assetRoot = "/assets";
-const backgroundTileImage = await loadImg("background/space_background_tile.png");
-const asteroidImage = await loadImg("asteroid/asteroid1.png");
-const shipImage = await loadImg("ship/ship1.png");
-const laserShotCanvas = renderSingleNeonLaserSprite();
-const laserShotImage = canvasToImage(laserShotCanvas);
-const artilleryShellImage = await loadImg("projectile/shell2.png");
-
-export const SpriteImages = {
-    backgroundTileImage,
-    asteroidImage,
-    shipImage,
-    projectile: {
-        laserShotImage,
-        artilleryShellImage
-    }
-};

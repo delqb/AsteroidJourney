@@ -37,12 +37,11 @@ import { HealthBarRenderSystem } from "./systems/render/HealthBarRenderSystem";
 import { AsteroidDeathSystem } from "./systems/simulation/AsteroidDeathSystem";
 import { ParticleSystem } from "./systems/simulation/ParticleSystem";
 import { ProjectileDamageSystem } from "./systems/simulation/ProjectileDamageSystem";
-import { InterpolationRegistry } from "./animation/Interpolators";
+import { InterpolationRegistry, transformScaleLerpId } from "./animation/Interpolators";
 import { PropertyAnimationSystem } from "./systems/simulation/animation/PropertyAnimationSystem";
-import { artilleryShell, spawnProjectile } from "./Projectiles";
+import { ProjectileType, spawnProjectile } from "./Projectiles";
 import { calculateRectangleMomentOfInertia } from "./Utils";
-import { createSpriteEntity, SpriteImages } from "./Sprites";
-import { createAsteroid } from "./Asteroids";
+import { createSpriteEntity } from "./Sprites";
 import { Sprite } from "./components/SpriteComponent";
 import { RenderCenter } from "./components/RenderCenterComponent";
 import { Stats } from "./components/StatsComponent";
@@ -64,10 +63,146 @@ import { Viewport } from "./components/ViewportComponent";
 import { Health } from "./components/HealthComponent";
 import { Thruster } from "./components/ThrusterComponent";
 import { Physics } from "./components/PhysicsComponent";
+import { createPropertyAnimationsComponent } from "./components/PropertyAnimationComponent";
+import { Asteroid } from "./components/AsteroidComponent";
+import { LifeTime } from "./components/LifetimeComponent";
+import { Particle } from "./components/ParticleComponent";
+import AssetRepo, { SpriteKey } from "./Assets";
+import Assets from "./Assets";
 
-export function start() {
+interface AsteroidCreationParameters {
+    position: Vec2;
+    rotation: number;
+    velocity: Vec2;
+    angularVelocity: number;
+    width: number;
+    options?: AsteroidCreationOptions;
+}
+
+interface AsteroidCreationOptions {
+    spriteImageKey?: SpriteKey;
+    density?: number;
+    health?: number;
+    deriveHealth?: (mass: number, size: number) => number;
+    damageAnimationScalePercent?: number;
+    damageAnimationDuration?: number;
+}
+
+export async function start() {
     const maxVelocity = 2.5 * 2.99792458
     const boundedRandom = MathUtils.boundedRandom;
+
+    const assetRepo = AssetRepo;
+    const assets = await assetRepo.loadAssets();
+    const sprites = assets.sprites;
+
+    function createAsteroid(
+        {
+            position,
+            rotation,
+            velocity,
+            angularVelocity,
+            width,
+            options = {}
+        }: AsteroidCreationParameters
+    ): ECSEntityId {
+        const
+            {
+
+                spriteImageKey = "asteroidImage",
+                density = 3.2,
+                health: optionalHealth,
+                deriveHealth = (mass: number, area: number) => mass * area,
+                damageAnimationScalePercent = 1.11,
+                damageAnimationDuration = 0.15
+
+            }: AsteroidCreationOptions = options;
+
+        const spriteImage = Assets.getSprite(spriteImageKey);
+        const aspectRatio = spriteImage.height / spriteImage.width;
+        const height = width * aspectRatio;
+        const area = width * height;
+        const mass = density * area;
+        const sizeTransform: Transform = { scale: 1 };
+        const health = optionalHealth ? optionalHealth : deriveHealth(mass, area);
+        const entity = createSpriteEntity(
+            Vector2.copy(position),
+            rotation,
+            spriteImageKey,
+            3,
+            {
+                x: width,
+                y: height
+            }
+        );
+        Fluid.addEntityComponents(entity,
+            Asteroid.createComponent({ area }),
+            Velocity.createComponent({
+                velocity,
+                angular: angularVelocity
+            }),
+            Physics.createComponent({
+                mass,
+                centerOfMassOffset: Vector2.zero(),
+                area: width * height,
+                momentOfInertia: calculateRectangleMomentOfInertia(mass, width, height)
+            }),
+            ChunkOccupancy.createComponent({ chunkKeys: new Set() }),
+            BoundingBox.createComponent(createBoundingBox({ width, height })),
+            Health.createComponent({ maxHealth: health, currentHealth: health, visible: true }),
+            createPropertyAnimationsComponent(
+                [
+                    [
+                        // Sprite animations
+                        Sprite,
+                        [
+                            // damaged animation
+                            {
+                                propertyName: 'transform',
+                                beginningValue: sizeTransform,
+                                endingValue: { scale: damageAnimationScalePercent },
+                                completed: true,
+                                duration: damageAnimationDuration,
+                                elapsed: 0,
+                                onComplete(entityId, propertyAnimationComponent) {
+                                    const transform = propertyAnimationComponent.animations.get(Sprite.getId().getSymbol()).get('transform');
+                                    transform.completed = true;
+                                },
+                                interpolationId: transformScaleLerpId
+                            }
+                        ]
+                    ]
+                ]
+            )
+        );
+        return entity;
+    }
+
+    function createAsteroidParticle(
+        position: Vec2,
+        velocity: Vec2,
+        rotation: number,
+        angularVelocity: number,
+        spawnTime: number,
+        lifeTime: number,
+        size: number
+    ): ECSEntityId {
+        const entityId = createSpriteEntity(
+            position,
+            rotation,
+            "asteroidImage",
+            3,
+            { x: size, y: size }
+        );
+        Fluid.addEntityComponents(entityId,
+            Velocity.createComponent({ velocity: velocity, angular: angularVelocity }),
+            LifeTime.createComponent({ lifeDuration: lifeTime, spawnTime }),
+            Particle.createComponent({})
+        )
+        return entityId;
+    }
+
+
 
     function generateChunk(
         worldContext: WorldContext,
@@ -79,7 +214,7 @@ export function start() {
         let chunkEntity = createSpriteEntity(
             chunkCenter,
             0,
-            SpriteImages.backgroundTileImage,
+            "backgroundTileImage",
             0,
             {
                 x: chunkSize,
@@ -470,9 +605,23 @@ export function start() {
 
     CAMERA.target.data.position = MC_POS.data;
 
+
+    // ProjectileTypes
+    const artilleryShell: ProjectileType = {
+        lifeTime: 5,
+        damage: 0.0015,
+        density: 1.8,
+        spriteImageKey: "artilleryShellImage"
+    }
+
+
+
+
+
+
     function initMainCharacter(): ECSEntityId {
         const modelScaleFactor = 1 / 555;
-        const shipImage = SpriteImages.shipImage;
+        const shipImage = sprites.shipImage;
         const shipImageAspectRatio = shipImage.height / shipImage.width;
         const height = 0.2
         const width = height / shipImageAspectRatio;

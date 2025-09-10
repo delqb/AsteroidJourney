@@ -49,6 +49,7 @@ export class AsteroidDeathSystem extends FluidSystem<Schema> {
             Fluid.removeEntity(entityId);
             return;
         }
+
         for (let angle = 0; angle < 2 * Math.PI; angle += increment) {
             let vX = Math.cos(angle) * (0.5 + 0.65 * Math.random());
             let vY = Math.sin(angle) * (0.5 + 0.65 * Math.random());
