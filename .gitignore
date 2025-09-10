@@ -80,3 +80,15 @@ dist/src/systems/simulation/chunk/ChunkUnloadingSystem.js
 dist/src/systems/simulation/chunk/index.js
 dist/src/world/Scene.js
 dist/src/world/World.js
+dist/index.html
+dist/Launcher.js
+dist/assets/asteroid/asteroid1.png
+dist/assets/asteroid/pdn/asteroid1.pdn
+dist/assets/background/space_background_tile.png
+dist/assets/background/space_background.pdn
+dist/assets/projectile/shell.pdn
+dist/assets/projectile/shell.png
+dist/assets/projectile/shell1.png
+dist/assets/projectile/shell2.png
+dist/assets/ship/ship1.png
+dist/assets/ship/pdn/ship1.pdn
