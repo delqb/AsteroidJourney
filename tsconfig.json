@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
+    "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "target": "esnext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "./src"
   },
   "include": [
-    "src"
+    "src/*"
   ],
   "exclude": [
     "temp",
