@@ -4,9 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ECSNode } from "fluidengine/v0/api";
-import { Fluid, FluidEngine, FluidSystem } from "fluidengine/dev/internal";
-import { ChunkKey, aabbsIntersect, isSeparatingAxisExistent } from "fluidengine/v0/lib";
+import { Fluid, FluidEngine, ECSNode } from "fluidengine";
+import { FluidSystem } from "fluidengine/internal";
+import { ChunkKey, aabbsIntersect, isSeparatingAxisExistent } from "fluidengine";
 import { BoundingBox } from "../../components/BoundingBoxComponent";
 import { ChunkOccupancy } from "../../components/ChunkOccupancyComponent";
 import { Collision } from "../../components/CollisionComponent";

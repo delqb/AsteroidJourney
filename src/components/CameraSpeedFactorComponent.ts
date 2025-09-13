@@ -4,7 +4,7 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine/v0";
+import { Fluid } from "fluidengine";
 
 
 export interface CameraSpeedFactorComponent {

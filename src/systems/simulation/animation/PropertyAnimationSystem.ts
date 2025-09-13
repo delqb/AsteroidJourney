@@ -1,7 +1,7 @@
-import { FluidEngine, FluidSystem } from "fluidengine/v0/internal";
+import { FluidEngine, FluidSystem } from "fluidengine/internal";
 import { PropertyAnimation } from "../../../components/PropertyAnimationComponent";
-import { Fluid } from "fluidengine/dev";
-import { ECSNode } from "fluidengine/v0/api";
+import { Fluid } from "fluidengine";
+import { ECSNode } from "fluidengine";
 import { InterpolationId } from "../../../animation/Interpolators";
 import { Interpolator } from "../../../animation/Interpolators";
 

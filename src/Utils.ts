@@ -1,4 +1,4 @@
-import { MathUtils } from "fluidengine/v0/lib";
+import { MathUtils } from "fluidengine";
 
 export function calculateRectangleMomentOfInertia(
     mass: number,

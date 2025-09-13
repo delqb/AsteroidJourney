@@ -4,17 +4,17 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine/v0";
-import { ECSNode } from "fluidengine/v0/api";
-import { FluidSystem } from "fluidengine/v0/internal";
+import { Fluid } from "fluidengine";
+import { ECSNode } from "fluidengine";
+import { FluidSystem } from "fluidengine/internal";
 import { Acceleration } from "../../components/AccelerationComponent";
 import { MovementControl } from "../../components/MovementControlComponent";
 import { Position } from "../../components/PositionComponent";
 import { Velocity } from "../../components/VelocityComponent";
 import { Thruster } from "../../components/ThrusterComponent";
 import { Physics } from "../../components/PhysicsComponent";
-import { Vec2 } from "fluidengine/v0/lib";
-import { MathUtils } from "fluidengine/v0/lib";
+import { Vec2 } from "fluidengine";
+import { MathUtils } from "fluidengine";
 import { DeltaTimeProvider } from "../../Utils";
 
 const round = MathUtils.round;

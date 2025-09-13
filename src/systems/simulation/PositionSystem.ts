@@ -4,8 +4,8 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { ECSNode } from "fluidengine/v0/api";
-import { Fluid, FluidEngine, FluidSystem } from "fluidengine/v0/internal";
+import { Fluid, FluidEngine, ECSNode } from "fluidengine";
+import { FluidSystem } from "fluidengine/internal";
 import { Position } from "../../components/PositionComponent";
 import { Velocity } from "../../components/VelocityComponent";
 

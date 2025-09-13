@@ -1,6 +1,6 @@
-import { Fluid } from "fluidengine/v0";
+import { Fluid } from "fluidengine";
 import { PropertyAnimationData } from "../animation/PropertyAnimation";
-import { ECSComponent, ECSComponentType } from "fluidengine/v0/api";
+import { ECSComponent, ECSComponentType } from "fluidengine";
 
 export interface PropertyAnimationsComponent {
     animations: Map<symbol, Map<any, PropertyAnimationData<any, any>>>;

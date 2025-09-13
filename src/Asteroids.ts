@@ -1,7 +1,6 @@
-import { ECSEntityId } from "fluidengine/v0/api";
-import { Transform, Vec2, Vector2 } from "fluidengine/v0/lib";
-import { createSpriteEntity, SpriteImages } from "./Sprites";
-import { Fluid } from "fluidengine/v0";
+import { ECSEntityId } from "fluidengine";
+import { Transform, Vec2, Vector2 } from "fluidengine";
+import { Fluid } from "fluidengine";
 import { transformScaleLerpId } from "./animation/Interpolators";
 import { Asteroid } from "./components/AsteroidComponent";
 import { BoundingBox, createBoundingBox } from "./components/BoundingBoxComponent";
@@ -14,6 +13,8 @@ import { Velocity } from "./components/VelocityComponent";
 import { calculateRectangleMomentOfInertia } from "./Utils";
 import { LifeTime } from "./components/LifetimeComponent";
 import { Particle } from "./components/ParticleComponent";
+import Assets, { SpriteKey } from "./Assets";
+import { createSpriteEntity } from "./Sprites";
 
 export interface AsteroidCreationParameters {
     position: Vec2;
@@ -25,7 +26,7 @@ export interface AsteroidCreationParameters {
 }
 
 export interface AsteroidCreationOptions {
-    spriteImage?: HTMLImageElement;
+    spriteImageKey?: SpriteKey;
     density?: number;
     health?: number;
     deriveHealth?: (mass: number, size: number) => number;
@@ -45,8 +46,7 @@ export function createAsteroid(
 ): ECSEntityId {
     const
         {
-
-            spriteImage = SpriteImages.asteroidImage,
+            spriteImageKey = "asteroidImage",
             density = 3.2,
             health: optionalHealth,
             deriveHealth = (mass: number, area: number) => mass * area,
@@ -55,6 +55,7 @@ export function createAsteroid(
 
         }: AsteroidCreationOptions = options;
 
+    const spriteImage = Assets.getSprite(spriteImageKey);
     const aspectRatio = spriteImage.height / spriteImage.width;
     const height = width * aspectRatio;
     const area = width * height;
@@ -64,7 +65,7 @@ export function createAsteroid(
     const entity = createSpriteEntity(
         Vector2.copy(position),
         rotation,
-        spriteImage,
+        spriteImageKey,
         3,
         {
             x: width,
@@ -125,7 +126,7 @@ export function createAsteroidParticle(
     const entityId = createSpriteEntity(
         position,
         rotation,
-        SpriteImages.asteroidImage,
+        "asteroidImage",
         3,
         { x: size, y: size }
     );

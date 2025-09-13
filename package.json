@@ -11,13 +11,20 @@
       "fluidengine": "github:delqb/FluidEngine#dev"
     }
   },
+  "dependencies": {
+    "fluidengine": "../FluidEngine"
+  },
   "devDependencies": {
+    "esbuild": "0.25.9",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "scripts": {
     "clean": "rmdir /s /q .\\dist",
-    "reloadfluid": "npm uninstall fluidengine --no-save && npm install fluidengine"
+    "reloadfluid": "npm uninstall fluidengine --no-save && npm install fluidengine",
+    "debug": "npx vite",
+    "build": "node ./build.mjs",
+    "cbuild": "npm run clean && npm run build"
   }
 }

@@ -4,9 +4,9 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine/dev";
-import { ECSNode } from "fluidengine/v0/api";
-import { FluidSystem } from "fluidengine/v0/internal";
+import { Fluid } from "fluidengine";
+import { ECSNode } from "fluidengine";
+import { FluidSystem } from "fluidengine/internal";
 import { Collision } from "../../components/CollisionComponent";
 import { EntityDeath } from "../../components/EntityDeathComponent";
 import { Health } from "../../components/HealthComponent";

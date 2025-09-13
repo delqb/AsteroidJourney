@@ -7,3 +7,5 @@ LICENSEHEADER
 LICENSEHEADERPREV
 addlicense.py
 *.tgz
+dist/
+out/

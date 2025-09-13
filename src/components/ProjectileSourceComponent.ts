@@ -4,8 +4,8 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine/v0";
-import { Transform } from "fluidengine/v0/lib";
+import { Fluid } from "fluidengine";
+import { Transform } from "fluidengine";
 import { ProjectileType } from "../Projectiles";
 
 

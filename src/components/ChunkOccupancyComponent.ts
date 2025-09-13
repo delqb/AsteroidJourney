@@ -4,8 +4,8 @@
     Copyright (c) 2025 Del Elbanna
 */
 
-import { Fluid } from "fluidengine/v0";
-import { ChunkKey } from "fluidengine/v0/lib";
+import { Fluid } from "fluidengine";
+import { ChunkKey } from "fluidengine";
 
 
 /**

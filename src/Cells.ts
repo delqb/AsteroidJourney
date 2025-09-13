@@ -1,13 +1,13 @@
-import { Fluid } from "fluidengine/dev";
-import { ECSComponentType, ECSEntityId, ECSNode, ECSNodeSchema, ECSSystem } from "fluidengine/v0/api";
-import { MathUtils, Transform, Vec2 } from "fluidengine/v0/lib";
+import { Fluid } from "fluidengine";
+import { ECSComponentType, ECSEntityId, ECSNode, ECSNodeSchema, ECSSystem } from "fluidengine";
+import { MathUtils, Transform, Vec2 } from "fluidengine";
 import { Position } from "./components/PositionComponent";
 import { Velocity } from "./components/VelocityComponent";
 import { BoundingBox } from "./components/BoundingBoxComponent";
 import { Health } from "./components/HealthComponent";
 import { Physics } from "./components/PhysicsComponent";
 import { calculateRectangleMomentOfInertia } from "./Utils";
-import { FluidSystem } from "fluidengine/v0/internal";
+import { FluidSystem } from "fluidengine/internal";
 import { ChunkOccupancy } from "./components/ChunkOccupancyComponent";
 import { EntityDeath } from "./components/EntityDeathComponent";
 import { Particle } from "./components/ParticleComponent";
