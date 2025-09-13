@@ -34,6 +34,9 @@ SET "index_file=%src_directory%\index.html"
 :: Build output directory.
 SET "build_directory=%ROOT%\dist"
 
+:: Wrangler configuration file path.
+SET "wrangler_config_file=%ROOT%\wrangler.jsonc"
+
 ::
 ::
 ::

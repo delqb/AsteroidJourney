@@ -55,6 +55,18 @@ ECHO.
 ::
 
 
+::Copy wrangler config file to out directory
+ECHO Packaging wrangler config file.
+xcopy "%wrangler_config_file%" "%out_directory%" /Y /Q
+if %errorlevel% neq 0 (
+    ECHO Packaging wrangler config file failed!
+    exit /b %errorlevel%
+)
+ECHO Packaged wrangler config file.
+ECHO.
+::
+
+
 ECHO.
 ECHO Finished packaging.
 ECHO.
