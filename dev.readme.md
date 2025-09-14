@@ -17,17 +17,17 @@ Contains the latest, functional production code. The develop branch is squash-me
 This is an orphan branch. It is used for deployments, and is only concerned with deployment directories and files. CloudFlare tracks and updates deployments based on new commits in this branch.
 At the time of writing this document, this branch only tracks the "out" directory and it its contents.
 
-### **Flow**s
+### **Flows**
 
 #### **Feature flow**
 
 Feature branches are created from the develop branch, then merged back into the develop branch with full history. No squash merges are used.
 
-#### **Bug fixe flow**
+#### **Bug fix flow**
 
 Bug fixes follow the same strategy as features.
 
-#### **Hotfixe flow**
+#### **Hotfix flow**
 
 A hotfix branch can be created from the main branch then merged back into main and then develop--possibly with merge conflicts when merged with develop.
 
