@@ -13,6 +13,10 @@ ECHO.
 :: Project root directory
 set "ROOT=%~dp0"
 
+:: Deployment branch name.
+SET "deploy_branch=deploy"
+
+
 :: Deployment directory.
 SET "out_directory=%ROOT%\out"
 
