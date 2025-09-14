@@ -21,10 +21,9 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "scripts": {
-    "clean": "rmdir /s /q .\\dist",
     "reloadfluid": "npm uninstall fluidengine --no-save && npm install fluidengine",
     "debug": "npx vite",
     "build": "node ./build.mjs",
-    "cbuild": "npm run clean && npm run build"
+    "cbuild": "npm run build"
   }
 }
