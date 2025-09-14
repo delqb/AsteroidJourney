@@ -20,9 +20,13 @@ CALL :check-error "Failed to push changes."
 
 POPD
 
+git checkout main
+
+
 ECHO.
 ECHO Updated deployment branch.
 ECHO.
+
 
 
 GOTO :EOF
@@ -30,18 +34,21 @@ GOTO :EOF
 :: Usage: 
 ::      CALL :check-error "Error message."
 ::
+
 :check-error
 if %errorlevel% neq 0 (
     POPD
-    SET ERROR_MSG=%~1
 
     ECHO.
     ECHO.
     ECHO An error occurred during deployment:
-    ECHO "    %ERROR_MSG%"
+    ECHO %1
     ECHO Error code: %errorlevel%
     ECHO.
     ECHO.
+
+    git checkout main
+
     EXIT %errorlevel%
 )
 EXIT /b 0
