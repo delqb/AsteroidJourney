@@ -1,2 +1,6 @@
 !/out
 !/out/**
+dist/
+node_modules/
+temp/
+package-lock.json
