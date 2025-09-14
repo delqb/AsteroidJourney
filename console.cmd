@@ -17,6 +17,9 @@ set "ROOT=%~dp0"
 SET "deploy_branch=deploy"
 
 
+:: Runtime temporary script directory
+set "temp_scripts=%ROOT%\temp\console_scripts"
+
 :: Deployment directory.
 SET "out_directory=%ROOT%\out"
 
@@ -45,11 +48,14 @@ SET "wrangler_config_file=%ROOT%\wrangler.jsonc"
 ::
 ::
 
-:: Add scripts directory to session path
-set "PATH=%PATH%;%ROOT%\scripts"
+:: Mirror copy the scripts to the temp location
+robocopy "%ROOT%\scripts" "%temp_scripts%" /MIR > nul
 
-dir /b scripts
-cd scripts
+:: Add scripts directory to session path
+set "PATH=%PATH%;%temp_scripts%"
+
+dir /b "%temp_scripts%"
+cd "%temp_scripts%"
 
 ECHO.
 cmd /k
