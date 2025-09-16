@@ -3585,7 +3585,15 @@ ${error}`);
     }
   });
 
-  // src/systems/render/debug/DebugInfoDisplaySystem.ts
+  // src/Utils.ts
+  function calculateRectangleMomentOfInertia(mass, width2, height2) {
+    return 1 / 12 * mass * (width2 * width2 + height2 * height2);
+  }
+  function transformScaleLerpBulge(from, to, timeElapsed, totalDuration) {
+    return {
+      scale: MathUtils_exports.lerp(from.scale, to.scale, Math.sin(Math.PI * timeElapsed / totalDuration))
+    };
+  }
   function drawComplexText(renderContext, x, y, content = [["Colored ", "red"], ["\n"], ["Text ", "Blue"], ["Test", "Green"]], lineSpacing = 2) {
     const TEXT_METRICS = renderContext.measureText("A");
     const FONT_HEIGHT = TEXT_METRICS.actualBoundingBoxAscent + TEXT_METRICS.actualBoundingBoxDescent;
@@ -3607,6 +3615,13 @@ ${error}`);
     }
     return y;
   }
+  var init_Utils = __esm({
+    "src/Utils.ts"() {
+      init_dist();
+    }
+  });
+
+  // src/systems/render/debug/DebugInfoDisplaySystem.ts
   var round3, schema15, nodeMeta15, DebugInfoDisplaySystem;
   var init_DebugInfoDisplaySystem = __esm({
     "src/systems/render/debug/DebugInfoDisplaySystem.ts"() {
@@ -3617,6 +3632,7 @@ ${error}`);
       init_PositionComponent();
       init_StatsComponent();
       init_VelocityComponent();
+      init_Utils();
       round3 = MathUtils_exports.round;
       schema15 = {
         position: Position,
@@ -4065,178 +4081,6 @@ ${error}`);
     }
   });
 
-  // src/world/World.ts
-  var WorldContext;
-  var init_World = __esm({
-    "src/world/World.ts"() {
-      init_dist();
-      init_Scene();
-      init_dist();
-      WorldContext = class {
-        // private unloadedEntitiesChunkMap = new Map<ChunkKey, Entity[]>();
-        constructor(engineInstance, chunkSize, chunkTimeout, generateChunk) {
-          this.engineInstance = engineInstance;
-          this.chunkSize = chunkSize;
-          this.chunkTimeout = chunkTimeout;
-          this.generateChunk = generateChunk;
-        }
-        chunkMap = /* @__PURE__ */ new Map();
-        getChunk(key) {
-          return this.chunkMap.get(key);
-        }
-        setChunk(key, chunk) {
-          this.chunkMap.set(key, chunk);
-        }
-        loadChunk(key) {
-          let chunk = this.chunkMap.get(key);
-          if (!chunk) {
-            chunk = this.generateChunk(this, parseChunkKey(key), this.chunkSize);
-            this.setChunk(key, chunk);
-          } else {
-            if (chunk.state === ChunkState.Loaded) {
-              throw new Error(`Chunk is already loaded (chunk: ${key})`);
-            }
-            for (const entitySymbol of chunk.entitySymbolSet) {
-              SceneFacade.loadEntity(entitySymbol);
-            }
-          }
-          chunk.state = ChunkState.Loaded;
-          return chunk;
-        }
-        unloadEntity(entityID, chunkKey) {
-          SceneFacade.unloadEntity(entityID);
-        }
-        unloadChunk(key) {
-          let chunk = this.chunkMap.get(key);
-          if (!chunk) throw new Error(`Chunk is undefined (key: ${key})`);
-          if (chunk.state === ChunkState.Unloaded) throw new Error(`Chunk is already unloaded (chunk: ${key})`);
-          const entityResolver = fluidInternal.core().getEntityManager().getEntityResolver();
-          for (const entitySymbol of chunk.entitySymbolSet) {
-            const entityId = entityResolver.getEntityBySymbol(entitySymbol);
-            if (entityId)
-              SceneFacade.unloadEntity(entityId);
-          }
-          chunk.state = ChunkState.Unloaded;
-          return true;
-        }
-        getAllChunks() {
-          return Array.from(this.chunkMap.values());
-        }
-      };
-    }
-  });
-
-  // src/components/HealthComponent.ts
-  var Health;
-  var init_HealthComponent = __esm({
-    "src/components/HealthComponent.ts"() {
-      init_dist();
-      Health = fluidInternal.defineComponentType("Health");
-    }
-  });
-
-  // src/systems/render/HealthBarRenderSystem.ts
-  function interpolateRGB(rgb1, rgb2, percent) {
-    const result = [0, 0, 0];
-    for (let i = 0; i < 3; i++) {
-      result[i] = MathUtils_exports.lerp(rgb1[i], rgb2[i], percent);
-    }
-    return result;
-  }
-  var schema19, meta2, width, height, hw, hh, outlineThickness, owidth, oheight, ohw, ohh, yDist, bkg, highColorRGB, lowColorRGB, healthColorGradient, gradientSteps, hPI3, HealthBarRenderSystem;
-  var init_HealthBarRenderSystem = __esm({
-    "src/systems/render/HealthBarRenderSystem.ts"() {
-      init_dist();
-      init_internal();
-      init_HealthComponent();
-      init_PositionComponent();
-      init_dist();
-      schema19 = {
-        position: Position,
-        health: Health
-      };
-      meta2 = fluidInternal.registerNodeSchema(schema19, "Health Render");
-      width = 0.2;
-      height = 0.01;
-      hw = width / 2;
-      hh = height / 2;
-      outlineThickness = 5e-3;
-      owidth = width + outlineThickness;
-      oheight = height + outlineThickness;
-      ohw = owidth / 2;
-      ohh = oheight / 2;
-      yDist = 0.13;
-      bkg = "white";
-      highColorRGB = [5, 240, 25];
-      lowColorRGB = [240, 5, 5];
-      healthColorGradient = [];
-      gradientSteps = 255;
-      for (let step = 0; step <= gradientSteps; step++) {
-        healthColorGradient[step] = `rgb(${interpolateRGB(lowColorRGB, highColorRGB, step / gradientSteps).join(",")})`;
-      }
-      hPI3 = Math.PI / 2;
-      HealthBarRenderSystem = class extends FluidSystem {
-        constructor(renderContext, getViewportRotation) {
-          super("Health Bar Render System", meta2);
-          this.renderContext = renderContext;
-          this.getViewportRotation = getViewportRotation;
-        }
-        updateNode(node) {
-          const ctx = this.renderContext;
-          const { position, health } = node;
-          if (!health.visible)
-            return;
-          const { x, y } = position.position;
-          const { currentHealth, maxHealth } = health;
-          const healthPercent = currentHealth / maxHealth;
-          const fillWidth = healthPercent * width;
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.rotate(this.getViewportRotation() + hPI3);
-          ctx.translate(0, yDist);
-          ctx.fillStyle = bkg;
-          ctx.fillRect(-ohw, -ohh, owidth, oheight);
-          ctx.fillStyle = healthColorGradient[Math.floor(healthPercent * (healthColorGradient.length - 1))];
-          ctx.fillRect(-hw, -hh, fillWidth, height);
-          ctx.restore();
-        }
-      };
-    }
-  });
-
-  // src/components/AsteroidComponent.ts
-  var Asteroid;
-  var init_AsteroidComponent = __esm({
-    "src/components/AsteroidComponent.ts"() {
-      init_dist();
-      Asteroid = fluidInternal.defineComponentType("Asteroid");
-    }
-  });
-
-  // src/components/EntityDeathComponent.ts
-  var EntityDeath;
-  var init_EntityDeathComponent = __esm({
-    "src/components/EntityDeathComponent.ts"() {
-      init_dist();
-      EntityDeath = fluidInternal.defineComponentType("Entity Death");
-    }
-  });
-
-  // src/Utils.ts
-  function calculateRectangleMomentOfInertia(mass, width2, height2) {
-    return 1 / 12 * mass * (width2 * width2 + height2 * height2);
-  }
-  function transformScaleLerpBulge(from, to, timeElapsed, totalDuration) {
-    return {
-      scale: MathUtils_exports.lerp(from.scale, to.scale, Math.sin(Math.PI * timeElapsed / totalDuration))
-    };
-  }
-  var init_Utils = __esm({
-    "src/Utils.ts"() {
-      init_dist();
-    }
-  });
-
   // src/animation/Interpolators.ts
   function registerInterpolation(interpolator, name) {
     const id = new AInterpolationId(name);
@@ -4273,6 +4117,24 @@ ${error}`);
       };
       InterpolationRegistry = { registerInterpolation, resolveInterpolator };
       transformScaleLerpId = InterpolationRegistry.registerInterpolation(transformScaleLerpBulge, "LERP(transform.scale)");
+    }
+  });
+
+  // src/components/AsteroidComponent.ts
+  var Asteroid;
+  var init_AsteroidComponent = __esm({
+    "src/components/AsteroidComponent.ts"() {
+      init_dist();
+      Asteroid = fluidInternal.defineComponentType("Asteroid");
+    }
+  });
+
+  // src/components/HealthComponent.ts
+  var Health;
+  var init_HealthComponent = __esm({
+    "src/components/HealthComponent.ts"() {
+      init_dist();
+      Health = fluidInternal.defineComponentType("Health");
     }
   });
 
@@ -4422,6 +4284,82 @@ ${error}`);
   });
 
   // src/Asteroids.ts
+  function createAsteroid({
+    position,
+    rotation,
+    velocity,
+    angularVelocity,
+    width: width2,
+    options = {}
+  }) {
+    const {
+      spriteImageKey = "asteroidImage",
+      density = 3.2,
+      health: optionalHealth,
+      deriveHealth = (mass2, area2) => mass2 * area2,
+      damageAnimationScalePercent = 1.11,
+      damageAnimationDuration = 0.15
+    } = options;
+    const spriteImage = Assets_default.getSprite(spriteImageKey);
+    const aspectRatio = spriteImage.height / spriteImage.width;
+    const height2 = width2 * aspectRatio;
+    const area = width2 * height2;
+    const mass = density * area;
+    const sizeTransform = { scale: 1 };
+    const health = optionalHealth ? optionalHealth : deriveHealth(mass, area);
+    const entity = createSpriteEntity(
+      Vector2.copy(position),
+      rotation,
+      spriteImageKey,
+      3,
+      {
+        x: width2,
+        y: height2
+      }
+    );
+    fluidInternal.addEntityComponents(
+      entity,
+      Asteroid.createComponent({ area }),
+      Velocity.createComponent({
+        velocity,
+        angular: angularVelocity
+      }),
+      Physics.createComponent({
+        mass,
+        centerOfMassOffset: Vector2.zero(),
+        area: width2 * height2,
+        momentOfInertia: calculateRectangleMomentOfInertia(mass, width2, height2)
+      }),
+      ChunkOccupancy.createComponent({ chunkKeys: /* @__PURE__ */ new Set() }),
+      BoundingBox.createComponent(createBoundingBox({ width: width2, height: height2 })),
+      Health.createComponent({ maxHealth: health, currentHealth: health, visible: true }),
+      createPropertyAnimationsComponent(
+        [
+          [
+            // Sprite animations
+            Sprite,
+            [
+              // damaged animation
+              {
+                propertyName: "transform",
+                beginningValue: sizeTransform,
+                endingValue: { scale: damageAnimationScalePercent },
+                completed: true,
+                duration: damageAnimationDuration,
+                elapsed: 0,
+                onComplete(entityId, propertyAnimationComponent) {
+                  const transform = propertyAnimationComponent.animations.get(Sprite.getId().getSymbol()).get("transform");
+                  transform.completed = true;
+                },
+                interpolationId: transformScaleLerpId
+              }
+            ]
+          ]
+        ]
+      )
+    );
+    return entity;
+  }
   function createAsteroidParticle(position, velocity, rotation, angularVelocity, spawnTime, lifeTime, size) {
     const entityId = createSpriteEntity(
       position,
@@ -4456,6 +4394,216 @@ ${error}`);
       init_ParticleComponent();
       init_Assets();
       init_Sprites();
+    }
+  });
+
+  // src/world/World.ts
+  function generateChunk(worldContext, chunkIndex, chunkSize, engine) {
+    const chunkCenter = getChunkCenterFromIndex(chunkIndex[0], chunkIndex[1], chunkSize);
+    let chunkEntity = createSpriteEntity(
+      chunkCenter,
+      0,
+      "backgroundTileImage",
+      0,
+      {
+        x: chunkSize,
+        y: chunkSize
+      }
+    );
+    const halfChunkSize = chunkSize / 2;
+    const nSubDivision = 3;
+    const subGridSize = chunkSize / 3;
+    const asteroidProbability = 0.3, sgap = asteroidProbability / (nSubDivision * nSubDivision);
+    const minVelocity = 0.08, maxVelocity = 0.32, maxAngularVelocity = 1.2;
+    const minSize = 0.08, maxSize = 0.4;
+    const minDensity = 1, maxDensity = 2.2;
+    for (let i = 0; i < nSubDivision; i++)
+      for (let j = 0; j < nSubDivision; j++) {
+        if (Math.random() > sgap)
+          continue;
+        let x = chunkCenter.x - halfChunkSize + i * subGridSize;
+        let y = chunkCenter.y - halfChunkSize + j * subGridSize;
+        let asteroidPosition = {
+          x: boundedRandom(x, x + subGridSize),
+          y: boundedRandom(y, y + subGridSize)
+        };
+        let asteroidRotation = Math.random() * 2 * Math.PI;
+        let asteroidVelocity = Vector2.scale(
+          Vector2.normalize(
+            {
+              x: Math.random() - 0.5,
+              y: Math.random() - 0.5
+            }
+          ),
+          boundedRandom(minVelocity, maxVelocity)
+        );
+        const angularVelocity = boundedRandom(minVelocity, maxAngularVelocity);
+        const size = boundedRandom(minSize, maxSize);
+        const density = boundedRandom(minDensity, maxDensity);
+        createAsteroid({
+          position: asteroidPosition,
+          velocity: asteroidVelocity,
+          rotation: asteroidRotation,
+          angularVelocity,
+          width: size,
+          options: {
+            density
+          }
+        });
+      }
+    const chunkMeta = createChunk(
+      chunkIndex,
+      chunkSize,
+      ChunkState.Loaded,
+      {
+        entitySymbolSet: /* @__PURE__ */ new Set([chunkEntity.getSymbol()]),
+        lastAccessed: engine.getGameTime()
+      }
+    );
+    const chunkComponent = Chunk.createComponent({ chunk: chunkMeta }, false);
+    fluidInternal.addEntityComponent(chunkEntity, chunkComponent);
+    return chunkMeta;
+  }
+  var WorldContext;
+  var init_World = __esm({
+    "src/world/World.ts"() {
+      init_dist();
+      init_dist();
+      init_Scene();
+      init_dist();
+      init_MathUtils();
+      init_Asteroids();
+      init_ChunkComponent();
+      init_Sprites();
+      WorldContext = class {
+        // private unloadedEntitiesChunkMap = new Map<ChunkKey, Entity[]>();
+        constructor(engineInstance, chunkSize, chunkTimeout, generateChunk2) {
+          this.engineInstance = engineInstance;
+          this.chunkSize = chunkSize;
+          this.chunkTimeout = chunkTimeout;
+          this.generateChunk = generateChunk2;
+        }
+        chunkMap = /* @__PURE__ */ new Map();
+        getChunk(key) {
+          return this.chunkMap.get(key);
+        }
+        setChunk(key, chunk) {
+          this.chunkMap.set(key, chunk);
+        }
+        loadChunk(key) {
+          let chunk = this.chunkMap.get(key);
+          if (!chunk) {
+            chunk = this.generateChunk(this, parseChunkKey(key), this.chunkSize);
+            this.setChunk(key, chunk);
+          } else {
+            if (chunk.state === ChunkState.Loaded) {
+              throw new Error(`Chunk is already loaded (chunk: ${key})`);
+            }
+            for (const entitySymbol of chunk.entitySymbolSet) {
+              SceneFacade.loadEntity(entitySymbol);
+            }
+          }
+          chunk.state = ChunkState.Loaded;
+          return chunk;
+        }
+        unloadEntity(entityID, chunkKey) {
+          SceneFacade.unloadEntity(entityID);
+        }
+        unloadChunk(key) {
+          let chunk = this.chunkMap.get(key);
+          if (!chunk) throw new Error(`Chunk is undefined (key: ${key})`);
+          if (chunk.state === ChunkState.Unloaded) throw new Error(`Chunk is already unloaded (chunk: ${key})`);
+          const entityResolver = fluidInternal.core().getEntityManager().getEntityResolver();
+          for (const entitySymbol of chunk.entitySymbolSet) {
+            const entityId = entityResolver.getEntityBySymbol(entitySymbol);
+            if (entityId)
+              SceneFacade.unloadEntity(entityId);
+          }
+          chunk.state = ChunkState.Unloaded;
+          return true;
+        }
+        getAllChunks() {
+          return Array.from(this.chunkMap.values());
+        }
+      };
+    }
+  });
+
+  // src/systems/render/HealthBarRenderSystem.ts
+  function interpolateRGB(rgb1, rgb2, percent) {
+    const result = [0, 0, 0];
+    for (let i = 0; i < 3; i++) {
+      result[i] = MathUtils_exports.lerp(rgb1[i], rgb2[i], percent);
+    }
+    return result;
+  }
+  var schema19, meta2, width, height, hw, hh, outlineThickness, owidth, oheight, ohw, ohh, yDist, bkg, highColorRGB, lowColorRGB, healthColorGradient, gradientSteps, hPI3, HealthBarRenderSystem;
+  var init_HealthBarRenderSystem = __esm({
+    "src/systems/render/HealthBarRenderSystem.ts"() {
+      init_dist();
+      init_internal();
+      init_HealthComponent();
+      init_PositionComponent();
+      init_dist();
+      schema19 = {
+        position: Position,
+        health: Health
+      };
+      meta2 = fluidInternal.registerNodeSchema(schema19, "Health Render");
+      width = 0.2;
+      height = 0.01;
+      hw = width / 2;
+      hh = height / 2;
+      outlineThickness = 5e-3;
+      owidth = width + outlineThickness;
+      oheight = height + outlineThickness;
+      ohw = owidth / 2;
+      ohh = oheight / 2;
+      yDist = 0.13;
+      bkg = "white";
+      highColorRGB = [5, 240, 25];
+      lowColorRGB = [240, 5, 5];
+      healthColorGradient = [];
+      gradientSteps = 255;
+      for (let step = 0; step <= gradientSteps; step++) {
+        healthColorGradient[step] = `rgb(${interpolateRGB(lowColorRGB, highColorRGB, step / gradientSteps).join(",")})`;
+      }
+      hPI3 = Math.PI / 2;
+      HealthBarRenderSystem = class extends FluidSystem {
+        constructor(renderContext, getViewportRotation) {
+          super("Health Bar Render System", meta2);
+          this.renderContext = renderContext;
+          this.getViewportRotation = getViewportRotation;
+        }
+        updateNode(node) {
+          const ctx = this.renderContext;
+          const { position, health } = node;
+          if (!health.visible)
+            return;
+          const { x, y } = position.position;
+          const { currentHealth, maxHealth } = health;
+          const healthPercent = currentHealth / maxHealth;
+          const fillWidth = healthPercent * width;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(this.getViewportRotation() + hPI3);
+          ctx.translate(0, yDist);
+          ctx.fillStyle = bkg;
+          ctx.fillRect(-ohw, -ohh, owidth, oheight);
+          ctx.fillStyle = healthColorGradient[Math.floor(healthPercent * (healthColorGradient.length - 1))];
+          ctx.fillRect(-hw, -hh, fillWidth, height);
+          ctx.restore();
+        }
+      };
+    }
+  });
+
+  // src/components/EntityDeathComponent.ts
+  var EntityDeath;
+  var init_EntityDeathComponent = __esm({
+    "src/components/EntityDeathComponent.ts"() {
+      init_dist();
+      EntityDeath = fluidInternal.defineComponentType("Entity Death");
     }
   });
 
@@ -4732,6 +4880,292 @@ ${error}`);
     }
   });
 
+  // src/Overlays.ts
+  function drawPauseScreen(renderContext, renderer) {
+    renderContext.save();
+    renderContext.globalAlpha = 0.5;
+    renderer.clear();
+    renderContext.globalAlpha = 0.5;
+    renderContext.font = "bold 256px calibri";
+    renderContext.fillStyle = "white";
+    renderContext.fillText("\u23F8", (renderer.getWidth() - 256) / 2, renderer.getHeight() / 2);
+    renderContext.restore();
+  }
+  function drawControlGuide(controlBinder, renderContext, renderer) {
+    renderContext.save();
+    renderContext.globalAlpha = 1;
+    renderContext.font = "16px calibri";
+    renderContext.fillStyle = "white";
+    renderContext.textAlign = "left";
+    const bindings = controlBinder.getBindings().filter((b) => b.name && b.keys.length > 0 && b.enabled);
+    const keysString = (keys) => `[ ${keys.map((k) => `'${k.toUpperCase()}'`).join(" / ")} ]`;
+    const textLines = bindings.map(
+      (b) => `${keysString(b.keys)}				 ${b.name}${b.continuous ? " (hold)" : ""}${b.description ? ` :${b.description}` : ""}
+`
+    );
+    const textPairing = textLines.map((line) => [line, "white"]);
+    drawComplexText(renderContext, 10, 20, textPairing, 4);
+    renderContext.restore();
+  }
+  var init_Overlays = __esm({
+    "src/Overlays.ts"() {
+      init_Utils();
+    }
+  });
+
+  // src/ControlBindings.ts
+  function mouseButtonToString(button) {
+    return `mouse${button}`;
+  }
+  function createControlBinding(controlBindingProperties = {
+    keys: [],
+    action: () => {
+    }
+  }) {
+    return new ControlBinding(controlBindingProperties);
+  }
+  function createDefaultControlBindings(engine, clientContext, movementControlComponent, fireControlComponent) {
+    return {
+      // Movement controls
+      up: createControlBinding({
+        name: "Move Up",
+        keys: ["w"],
+        action: () => {
+          movementControlComponent.data.accelerationInput.y += 1;
+        },
+        continuous: true
+      }),
+      down: createControlBinding({
+        name: "Move Down",
+        keys: ["s"],
+        action: () => {
+          movementControlComponent.data.accelerationInput.y += -1;
+        },
+        continuous: true
+      }),
+      left: createControlBinding({
+        name: "Move Left",
+        keys: ["a"],
+        action: () => {
+          movementControlComponent.data.accelerationInput.x += -1;
+        },
+        continuous: true
+      }),
+      right: createControlBinding({
+        name: "Move Right",
+        keys: ["d"],
+        action: () => {
+          movementControlComponent.data.accelerationInput.x += 1;
+        },
+        continuous: true
+      }),
+      yawLeft: createControlBinding({
+        name: "Yaw Left",
+        keys: ["q"],
+        action: () => {
+          movementControlComponent.data.yawInput -= 1;
+        },
+        continuous: true
+      }),
+      yawRight: createControlBinding({
+        name: "Yaw Right",
+        keys: ["e"],
+        action: () => {
+          movementControlComponent.data.yawInput += 1;
+        },
+        continuous: true
+      }),
+      // Fire control
+      fire_keyboard: createControlBinding({
+        name: "Fire",
+        keys: [" ", mouseButtonToString(0)],
+        action: () => {
+          fireControlComponent.data.fireIntent = true;
+        },
+        continuous: true
+      }),
+      // Hotkeys
+      pause: createControlBinding({
+        name: "Pause",
+        keys: ["escape"],
+        action: () => {
+          engine.toggleAnimation();
+        }
+      }),
+      eagle_eye_zoom: createControlBinding({
+        name: "Eagle Eye Zoom",
+        keys: ["v"],
+        action: () => clientContext.setZoomLevel(5)
+      }),
+      reset_zoom: createControlBinding({
+        name: "Reset Zoom",
+        keys: ["x"],
+        action: () => clientContext.setZoomLevel(30)
+      }),
+      decrease_zoom: createControlBinding({
+        name: "Decrease Zoom",
+        keys: ["z"],
+        action: () => {
+          const decrement = 10;
+          const max = 100;
+          const min = decrement;
+          const next = clientContext.getZoomLevel() - decrement;
+          clientContext.setZoomLevel(next < min ? max : next);
+        }
+      }),
+      increase_zoom: createControlBinding({
+        name: "Increase Zoom",
+        keys: ["c"],
+        action: () => {
+          const increment = 10;
+          const max = 100;
+          const min = increment;
+          const next = clientContext.getZoomLevel() + increment;
+          clientContext.setZoomLevel(next > max ? min : next);
+        }
+      }),
+      slow_time: createControlBinding({
+        name: "Slow Time",
+        keys: ["["],
+        action: () => clientContext.setSimulationSpeed(clientContext.getSimulationSpeed() / 2)
+      }),
+      speed_time: createControlBinding({
+        name: "Speed Time",
+        keys: ["]"],
+        action: () => clientContext.setSimulationSpeed(clientContext.getSimulationSpeed() * 2)
+      }),
+      reset_simulation_speed: createControlBinding({
+        name: "Reset Simulation Speed",
+        keys: ["-"],
+        action: () => clientContext.setSimulationSpeed(1)
+      }),
+      toggle_debug_info: createControlBinding({
+        name: "Toggle Debug Info",
+        keys: ["f1"],
+        action: () => {
+          clientContext.displayDebugInfo = !clientContext.displayDebugInfo;
+        }
+      }),
+      toggle_colliders: createControlBinding({
+        name: "Toggle Colliders",
+        keys: ["f2"],
+        action: () => {
+          clientContext.displayBoundingBoxes = !clientContext.displayBoundingBoxes;
+        }
+      }),
+      toggle_display_axes: createControlBinding({
+        name: "Toggle Display Axes",
+        keys: ["f3"],
+        action: () => {
+          clientContext.displayEntityAxes = !clientContext.displayEntityAxes;
+        }
+      }),
+      toggle_display_chunks: createControlBinding({
+        name: "Toggle Display Chunks",
+        keys: ["f4"],
+        action: () => {
+          clientContext.displayChunks = !clientContext.displayChunks;
+        }
+      })
+    };
+  }
+  function registerDefaultBindings(controlBinder, engine, clientContext, movementControlComponent, fireControlComponent) {
+    const bindings = createDefaultControlBindings(engine, clientContext, movementControlComponent, fireControlComponent);
+    Object.values(bindings).forEach((binding) => {
+      controlBinder.registerBinding(binding);
+    });
+    return controlBinder;
+  }
+  var ControlBinding, ControlBinder;
+  var init_ControlBindings = __esm({
+    "src/ControlBindings.ts"() {
+      ControlBinding = class {
+        constructor(controlBindingProperties = {
+          keys: [],
+          action: () => {
+          }
+        }) {
+          this.controlBindingProperties = controlBindingProperties;
+          this.name = controlBindingProperties.name || "Unnamed Control Binding";
+          this.description = controlBindingProperties.description || "";
+          this.action = controlBindingProperties.action || (() => {
+          });
+          this.continuous = controlBindingProperties.continuous || false;
+          this.enabled = controlBindingProperties.enabled !== void 0 ? controlBindingProperties.enabled : true;
+          const keys = controlBindingProperties.keys || [];
+          this.keys = keys.map((k) => k.toLowerCase());
+        }
+        name;
+        description;
+        keys;
+        action;
+        continuous;
+        enabled;
+      };
+      ControlBinder = class {
+        bindings = [];
+        keyStates = /* @__PURE__ */ new Map();
+        constructor() {
+        }
+        activateControlBindings(continuous) {
+          for (const binding of this.bindings.filter((b) => b.continuous === continuous)) {
+            if (!binding.enabled) continue;
+            if (binding.keys.some((k) => this.keyStates.get(k))) {
+              binding.action();
+            }
+          }
+          return this;
+        }
+        registerBinding(binding) {
+          this.bindings.push(binding);
+          return this;
+        }
+        getBindings() {
+          return this.bindings;
+        }
+        getActiveBindings() {
+          return this.bindings.filter((b) => b.enabled && b.keys.some((k) => this.keyStates.get(k)));
+        }
+        setKeyState(key, pressed) {
+          this.keyStates.set(key, pressed);
+        }
+        getKeyState(key) {
+          return this.keyStates.get(key) || false;
+        }
+        clearKeyStates() {
+          this.keyStates.clear();
+          return this;
+        }
+        registerKeyboardListeners(element = window.document.body) {
+          element.addEventListener("keydown", (event) => {
+            event.preventDefault();
+            this.setKeyState(event.key.toLowerCase(), true);
+            this.activateControlBindings(false);
+          });
+          element.addEventListener("keyup", (event) => {
+            this.setKeyState(event.key.toLowerCase(), false);
+          });
+          return this;
+        }
+        registerMouseListeners(element = window.document.body) {
+          element.addEventListener("mousedown", (event) => {
+            this.setKeyState(mouseButtonToString(event.button), true);
+            this.activateControlBindings(false);
+          });
+          element.addEventListener("mouseup", (event) => {
+            this.setKeyState(mouseButtonToString(event.button), false);
+          });
+          return this;
+        }
+        registerDefaultListeners() {
+          this.registerKeyboardListeners();
+          this.registerMouseListeners();
+          return this;
+        }
+      };
+    }
+  });
+
   // src/AsteroidJourney.ts
   var AsteroidJourney_exports = {};
   __export(AsteroidJourney_exports, {
@@ -4739,168 +5173,9 @@ ${error}`);
   });
   async function start() {
     const maxVelocity = 2.5 * 2.99792458;
-    const boundedRandom2 = MathUtils_exports.boundedRandom;
     const assetRepo = Assets_default;
     const assets = await assetRepo.loadAssets();
     const sprites = assets.sprites;
-    function createAsteroid({
-      position,
-      rotation,
-      velocity,
-      angularVelocity,
-      width: width2,
-      options = {}
-    }) {
-      const {
-        spriteImageKey = "asteroidImage",
-        density = 3.2,
-        health: optionalHealth,
-        deriveHealth = (mass2, area2) => mass2 * area2,
-        damageAnimationScalePercent = 1.11,
-        damageAnimationDuration = 0.15
-      } = options;
-      const spriteImage = Assets_default.getSprite(spriteImageKey);
-      const aspectRatio = spriteImage.height / spriteImage.width;
-      const height2 = width2 * aspectRatio;
-      const area = width2 * height2;
-      const mass = density * area;
-      const sizeTransform = { scale: 1 };
-      const health = optionalHealth ? optionalHealth : deriveHealth(mass, area);
-      const entity = createSpriteEntity(
-        Vector2.copy(position),
-        rotation,
-        spriteImageKey,
-        3,
-        {
-          x: width2,
-          y: height2
-        }
-      );
-      fluidInternal.addEntityComponents(
-        entity,
-        Asteroid.createComponent({ area }),
-        Velocity.createComponent({
-          velocity,
-          angular: angularVelocity
-        }),
-        Physics.createComponent({
-          mass,
-          centerOfMassOffset: Vector2.zero(),
-          area: width2 * height2,
-          momentOfInertia: calculateRectangleMomentOfInertia(mass, width2, height2)
-        }),
-        ChunkOccupancy.createComponent({ chunkKeys: /* @__PURE__ */ new Set() }),
-        BoundingBox.createComponent(createBoundingBox({ width: width2, height: height2 })),
-        Health.createComponent({ maxHealth: health, currentHealth: health, visible: true }),
-        createPropertyAnimationsComponent(
-          [
-            [
-              // Sprite animations
-              Sprite,
-              [
-                // damaged animation
-                {
-                  propertyName: "transform",
-                  beginningValue: sizeTransform,
-                  endingValue: { scale: damageAnimationScalePercent },
-                  completed: true,
-                  duration: damageAnimationDuration,
-                  elapsed: 0,
-                  onComplete(entityId, propertyAnimationComponent) {
-                    const transform = propertyAnimationComponent.animations.get(Sprite.getId().getSymbol()).get("transform");
-                    transform.completed = true;
-                  },
-                  interpolationId: transformScaleLerpId
-                }
-              ]
-            ]
-          ]
-        )
-      );
-      return entity;
-    }
-    function createAsteroidParticle2(position, velocity, rotation, angularVelocity, spawnTime, lifeTime, size) {
-      const entityId = createSpriteEntity(
-        position,
-        rotation,
-        "asteroidImage",
-        3,
-        { x: size, y: size }
-      );
-      fluidInternal.addEntityComponents(
-        entityId,
-        Velocity.createComponent({ velocity, angular: angularVelocity }),
-        LifeTime.createComponent({ lifeDuration: lifeTime, spawnTime }),
-        Particle.createComponent({})
-      );
-      return entityId;
-    }
-    function generateChunk(worldContext2, chunkIndex, chunkSize) {
-      const chunkCenter = getChunkCenterFromIndex(chunkIndex[0], chunkIndex[1], chunkSize);
-      let chunkEntity = createSpriteEntity(
-        chunkCenter,
-        0,
-        "backgroundTileImage",
-        0,
-        {
-          x: chunkSize,
-          y: chunkSize
-        }
-      );
-      const halfChunkSize = chunkSize / 2;
-      const nSubDivision = 3;
-      const subGridSize = chunkSize / 3;
-      const asteroidProbability = 0.3, sgap = asteroidProbability / (nSubDivision * nSubDivision);
-      const minVelocity = 0.08, maxVelocity2 = 0.32, maxAngularVelocity = 1.2;
-      const minSize = 0.08, maxSize = 0.4;
-      const minDensity = 1, maxDensity = 2.2;
-      for (let i = 0; i < nSubDivision; i++)
-        for (let j = 0; j < nSubDivision; j++) {
-          if (Math.random() > sgap)
-            continue;
-          let x = chunkCenter.x - halfChunkSize + i * subGridSize;
-          let y = chunkCenter.y - halfChunkSize + j * subGridSize;
-          let asteroidPosition = {
-            x: boundedRandom2(x, x + subGridSize),
-            y: boundedRandom2(y, y + subGridSize)
-          };
-          let asteroidRotation = Math.random() * 2 * Math.PI;
-          let asteroidVelocity = Vector2.scale(
-            Vector2.normalize(
-              {
-                x: Math.random() - 0.5,
-                y: Math.random() - 0.5
-              }
-            ),
-            boundedRandom2(minVelocity, maxVelocity2)
-          );
-          const angularVelocity = boundedRandom2(minVelocity, maxAngularVelocity);
-          const size = boundedRandom2(minSize, maxSize);
-          const density = boundedRandom2(minDensity, maxDensity);
-          createAsteroid({
-            position: asteroidPosition,
-            velocity: asteroidVelocity,
-            rotation: asteroidRotation,
-            angularVelocity,
-            width: size,
-            options: {
-              density
-            }
-          });
-        }
-      const chunkMeta = createChunk(
-        chunkIndex,
-        chunkSize,
-        ChunkState.Loaded,
-        {
-          entitySymbolSet: /* @__PURE__ */ new Set([chunkEntity.getSymbol()]),
-          lastAccessed: engine.getGameTime()
-        }
-      );
-      const chunkComponent = Chunk.createComponent({ chunk: chunkMeta }, false);
-      fluidInternal.addEntityComponent(chunkEntity, chunkComponent);
-      return chunkMeta;
-    }
     const canvasElement = document.getElementById("canvas");
     canvasElement.addEventListener("contextmenu", function(e) {
       e.preventDefault();
@@ -4945,10 +5220,9 @@ ${error}`);
       ...Object.values(CAMERA)
     );
     const engine = new FluidEngine(fluidInternal.core(), 1024);
-    const worldContext = new WorldContext(engine, 1.024, 0.1, generateChunk);
+    const worldContext = new WorldContext(engine, 1.024, 0.1, (wC, cI, cS) => generateChunk(wC, cI, cS, engine));
     const clientContext = new ClientContext(engine, worldContext, renderer);
     clientContext.setZoomLevel(20);
-    const KEY_STATES = {};
     const MOVEMENT_CONTROL_COMPONENT = MovementControl.createComponent({
       accelerationInput: {
         x: 0,
@@ -4956,149 +5230,19 @@ ${error}`);
       },
       yawInput: 0
     });
-    const KEYBOARD_CONTROLS = {
-      up: {
-        type: "movement",
-        keys: ["w"],
-        action: () => {
-          MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.y += 1;
-        }
-      },
-      down: {
-        keys: ["s"],
-        action: () => {
-          MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.y += -1;
-        }
-      },
-      left: {
-        keys: ["a"],
-        action: () => {
-          MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.x += -1;
-        }
-      },
-      right: {
-        keys: ["d"],
-        action: () => {
-          MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.x += 1;
-        }
-      },
-      yawLeft: {
-        keys: ["q"],
-        action: () => {
-          MOVEMENT_CONTROL_COMPONENT.data.yawInput -= 1;
-        }
-      },
-      yawRight: {
-        keys: ["e"],
-        action: () => {
-          MOVEMENT_CONTROL_COMPONENT.data.yawInput += 1;
-        }
-      }
-    };
-    const MOUSE_KEY_STATES = {};
-    const MOUSE_CONTROLS = {};
-    const HOTKEYS = {
-      pause: {
-        keys: ["escape"],
-        action: () => {
-          engine.toggleAnimation();
-        }
-      },
-      eagle_eye_zoom: {
-        keys: ["v"],
-        action: () => clientContext.setZoomLevel(5)
-      },
-      reset_zoom: {
-        keys: ["x"],
-        action: () => clientContext.setZoomLevel(30)
-      },
-      decrease_zoom: {
-        keys: ["z"],
-        action: () => {
-          const decrement = 10;
-          const max = 100;
-          const min = decrement;
-          const next = clientContext.getZoomLevel() - decrement;
-          clientContext.setZoomLevel(next < min ? max : next);
-        }
-      },
-      increase_zoom: {
-        keys: ["c"],
-        action: () => {
-          const increment = 10;
-          const max = 100;
-          const min = increment;
-          const next = clientContext.getZoomLevel() + increment;
-          clientContext.setZoomLevel(next > max ? min : next);
-        }
-      },
-      slow_time: {
-        keys: ["["],
-        action: () => clientContext.setSimulationSpeed(clientContext.getSimulationSpeed() / 2)
-      },
-      speed_time: {
-        keys: ["]"],
-        action: () => clientContext.setSimulationSpeed(clientContext.getSimulationSpeed() * 2)
-      },
-      reset_simulation_speed: {
-        keys: ["-"],
-        action: () => clientContext.setSimulationSpeed(1)
-      },
-      toggle_debug_info: {
-        keys: ["f1"],
-        action: () => {
-          clientContext.displayDebugInfo = !clientContext.displayDebugInfo;
-        }
-      },
-      toggle_colliders: {
-        keys: ["f2"],
-        action: () => {
-          clientContext.displayBoundingBoxes = !clientContext.displayBoundingBoxes;
-        }
-      },
-      toggle_display_axes: {
-        keys: ["f3"],
-        action: () => {
-          clientContext.displayEntityAxes = !clientContext.displayEntityAxes;
-        }
-      },
-      toggle_display_chunks: {
-        keys: ["f4"],
-        action: () => {
-          clientContext.displayChunks = !clientContext.displayChunks;
-        }
-      }
-    };
-    function activateHotkeyBindings() {
-      for (const binding of Object.values(HOTKEYS)) {
-        if (binding.keys.some((k) => KEY_STATES[k.toLowerCase()] === true))
-          binding.action();
-      }
-    }
-    function activateControlBindings() {
-      for (const controlBinding of Object.keys(KEYBOARD_CONTROLS).map((k) => KEYBOARD_CONTROLS[k])) {
-        if (controlBinding.keys.some((k) => KEY_STATES[k]))
-          controlBinding.action();
-      }
-      for (const controlBinding of Object.keys(MOUSE_CONTROLS).map((k) => MOUSE_CONTROLS[k])) {
-        if (controlBinding.keys.some((k) => MOUSE_KEY_STATES[k]))
-          controlBinding.action();
-      }
-    }
-    function drawPauseScreen() {
-      renderContext.save();
-      renderContext.globalAlpha = 0.5;
-      renderer.clear();
-      renderContext.globalAlpha = 0.5;
-      renderContext.font = "bold 256px calibri";
-      renderContext.fillStyle = "white";
-      renderContext.fillText("\u23F8", (renderer.getWidth() - 256) / 2, renderer.getHeight() / 2);
-      renderContext.restore();
-    }
+    const FIRE_CONTROL_COMPONENT = FireControl.createComponent({ fireIntent: false });
+    const controlBinder = new ControlBinder().registerDefaultListeners();
+    registerDefaultBindings(
+      controlBinder,
+      engine,
+      clientContext,
+      MOVEMENT_CONTROL_COMPONENT,
+      FIRE_CONTROL_COMPONENT
+    );
     const simulationPhase = new FluidSystemPhase(
       "Simulation Phase",
       () => {
-        activateControlBindings();
+        controlBinder.activateControlBindings(true);
       },
       () => {
         MOVEMENT_CONTROL_COMPONENT.data.yawInput = 0;
@@ -5120,8 +5264,10 @@ ${error}`);
       () => {
       },
       () => {
-        if (!engine.getAnimationState())
-          drawPauseScreen();
+        if (!engine.getAnimationState()) {
+          drawPauseScreen(renderContext, renderer);
+          drawControlGuide(controlBinder, renderContext, renderer);
+        }
       }
     );
     const sysman = fluidInternal.core().getSystemOrchestrator();
@@ -5159,7 +5305,6 @@ ${error}`);
       viewportRenderSystem,
       debugInfoDisplaySystem
     );
-    const FIRE_CONTROL_COMPONENT = FireControl.createComponent({ fireIntent: false });
     const MC_POS = Position.createComponent({
       position: { x: 0, y: 0 },
       rotation: -Math.PI / 2
@@ -5242,37 +5387,11 @@ ${error}`);
       );
     }
     const MAIN_CHARACTER = initMainCharacter();
-    MOUSE_CONTROLS["fire"] = {
-      keys: [0],
-      action: () => {
-        FIRE_CONTROL_COMPONENT.data.fireIntent = true;
-      }
-    };
-    KEYBOARD_CONTROLS["fire"] = {
-      keys: [" "],
-      action: () => {
-        FIRE_CONTROL_COMPONENT.data.fireIntent = true;
-      }
-    };
     const CURSOR_SCREEN_COMPONENT = ScreenPoint.createComponent({
       point: { x: 0, y: 0 }
     });
     canvasElement.addEventListener("mousemove", (event) => {
       CURSOR_SCREEN_COMPONENT.data.point = { x: event.offsetX, y: event.offsetY };
-    });
-    window.addEventListener("keydown", (event) => {
-      event.preventDefault();
-      KEY_STATES[event.key.toLowerCase()] = true;
-      activateHotkeyBindings();
-    });
-    window.addEventListener("keyup", (event) => {
-      KEY_STATES[event.key.toLowerCase()] = false;
-    });
-    window.addEventListener("mousedown", (event) => {
-      MOUSE_KEY_STATES[event.button] = true;
-    });
-    canvasElement.addEventListener("mouseup", (event) => {
-      MOUSE_KEY_STATES[event.button] = false;
     });
     engine.animate();
     console.log("Asteroid Journey Started!");
@@ -5295,7 +5414,6 @@ ${error}`);
       init_PropertyAnimationSystem();
       init_Projectiles();
       init_Utils();
-      init_Sprites();
       init_SpriteComponent();
       init_RenderCenterComponent();
       init_StatsComponent();
@@ -5310,19 +5428,15 @@ ${error}`);
       init_PositionComponent();
       init_ResolutionComponent();
       init_BoundingBoxComponent();
-      init_ChunkComponent();
       init_ChunkOccupancyComponent();
       init_ProjectileSourceComponent();
       init_ViewportComponent();
       init_HealthComponent();
       init_ThrusterComponent();
       init_PhysicsComponent();
-      init_PropertyAnimationComponent();
-      init_AsteroidComponent();
-      init_LifetimeComponent();
-      init_ParticleComponent();
       init_Assets();
-      init_Assets();
+      init_Overlays();
+      init_ControlBindings();
     }
   });
 
