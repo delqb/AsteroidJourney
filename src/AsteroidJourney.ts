@@ -37,11 +37,10 @@ import { HealthBarRenderSystem } from "./systems/render/HealthBarRenderSystem";
 import { AsteroidDeathSystem } from "./systems/simulation/AsteroidDeathSystem";
 import { ParticleSystem } from "./systems/simulation/ParticleSystem";
 import { ProjectileDamageSystem } from "./systems/simulation/ProjectileDamageSystem";
-import { InterpolationRegistry, transformScaleLerpId } from "./animation/Interpolators";
+import { InterpolationRegistry } from "./animation/Interpolators";
 import { PropertyAnimationSystem } from "./systems/simulation/animation/PropertyAnimationSystem";
 import { ProjectileType, spawnProjectile } from "./Projectiles";
 import { calculateRectangleMomentOfInertia } from "./Utils";
-import { createSpriteEntity } from "./Sprites";
 import { Sprite } from "./components/SpriteComponent";
 import { RenderCenter } from "./components/RenderCenterComponent";
 import { Stats } from "./components/StatsComponent";
@@ -125,13 +124,10 @@ export async function start() {
     );
 
     const engine = new FluidEngine(Fluid.core(), 1024);
-    const worldContext: WorldContext = new WorldContext(engine, 1.024, 0.1, generateChunk);
+    const worldContext: WorldContext = new WorldContext(engine, 1.024, 0.1, (wC, cI, cS) => generateChunk(wC, cI, cS, engine));
     const clientContext: ClientContext = new ClientContext(engine, worldContext, renderer);
 
     clientContext.setZoomLevel(20);
-
-    const KEY_STATES = {
-    };
 
     const MOVEMENT_CONTROL_COMPONENT = MovementControl.createComponent({
         accelerationInput: {
@@ -141,163 +137,22 @@ export async function start() {
         yawInput: 0
     });
 
-    const KEYBOARD_CONTROLS = {
-        up: {
-            type: "movement",
-            keys: ["w"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.y += 1;
-            }
-        },
-        down: {
-            keys: ["s"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.y += -1;
-            }
-        },
-        left: {
-            keys: ["a"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.x += -1;
-            }
-        },
-        right: {
-            keys: ["d"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.x += 1;
-            }
-        },
-        yawLeft: {
-            keys: ["q"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.yawInput -= 1;
-            }
-        },
-        yawRight: {
-            keys: ["e"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.yawInput += 1;
-            }
-        }
-    };
+    const FIRE_CONTROL_COMPONENT = FireControl.createComponent({ fireIntent: false });
 
-    const MOUSE_KEY_STATES = {
+    const controlBinder = new ControlBinder().registerDefaultListeners();
 
-    }
-
-    const MOUSE_CONTROLS = {
-    }
-
-    const HOTKEYS = {
-        pause: {
-            keys: ["escape"],
-            action: () => {
-                engine.toggleAnimation();
-            }
-        },
-        eagle_eye_zoom: {
-            keys: ["v"],
-            action: () => clientContext.setZoomLevel(5)
-        },
-        reset_zoom: {
-            keys: ["x"],
-            action: () => clientContext.setZoomLevel(30)
-        },
-        decrease_zoom: {
-            keys: ["z"],
-            action: () => {
-                const decrement = 10;
-                const max = 100;
-                const min = decrement;
-                const next = (clientContext.getZoomLevel() - decrement);
-
-                clientContext.setZoomLevel(next < min ? max : next);
-            }
-        },
-        increase_zoom: {
-            keys: ["c"],
-            action: () => {
-                const increment = 10;
-                const max = 100;
-                const min = increment;
-                const next = (clientContext.getZoomLevel() + increment);
-
-                clientContext.setZoomLevel(next > max ? min : next);
-            }
-        },
-        slow_time: {
-            keys: ["["],
-            action: () => clientContext.setSimulationSpeed(clientContext.getSimulationSpeed() / 2)
-        },
-        speed_time: {
-            keys: ["]"],
-            action: () => clientContext.setSimulationSpeed(clientContext.getSimulationSpeed() * 2)
-        },
-        reset_simulation_speed: {
-            keys: ["-"],
-            action: () => clientContext.setSimulationSpeed(1)
-        },
-        toggle_debug_info: {
-            keys: ["f1"],
-            action: () => {
-                clientContext.displayDebugInfo = !clientContext.displayDebugInfo;
-            }
-        },
-        toggle_colliders: {
-            keys: ["f2"],
-            action: () => {
-                clientContext.displayBoundingBoxes = !clientContext.displayBoundingBoxes;
-            }
-        },
-        toggle_display_axes: {
-            keys: ["f3"],
-            action: () => {
-                clientContext.displayEntityAxes = !clientContext.displayEntityAxes;
-            }
-        },
-        toggle_display_chunks: {
-            keys: ["f4"],
-            action: () => {
-                clientContext.displayChunks = !clientContext.displayChunks;
-            }
-        }
-    }
-
-    function activateHotkeyBindings() {
-        for (const binding of Object.values(HOTKEYS)) {
-            if (binding.keys.some(k => KEY_STATES[k.toLowerCase()] === true))
-                binding.action();
-        }
-    }
-
-    function activateControlBindings() {
-        for (const controlBinding of Object.keys(KEYBOARD_CONTROLS).map(k => KEYBOARD_CONTROLS[k])) {
-            if (controlBinding.keys.some(k => KEY_STATES[k]))
-                controlBinding.action();
-        }
-        for (const controlBinding of Object.keys(MOUSE_CONTROLS).map(k => MOUSE_CONTROLS[k])) {
-            if (controlBinding.keys.some(k => MOUSE_KEY_STATES[k]))
-                controlBinding.action();
-        }
-    }
-
-    function drawPauseScreen() {
-        renderContext.save();
-
-        renderContext.globalAlpha = 0.5;
-        renderer.clear();
-        renderContext.globalAlpha = 0.5;
-        renderContext.font = "bold 256px calibri"
-        renderContext.fillStyle = "white";
-        renderContext.fillText("⏸", (renderer.getWidth() - 256) / 2, renderer.getHeight() / 2);
-
-        renderContext.restore();
-    }
+    registerDefaultBindings(
+        controlBinder,
+        engine,
+        clientContext,
+        MOVEMENT_CONTROL_COMPONENT,
+        FIRE_CONTROL_COMPONENT
+    );
 
     const simulationPhase = new FluidSystemPhase(
         "Simulation Phase",
         () => {
-            activateControlBindings();
+            controlBinder.activateControlBindings(true);
         },
         () => {
             MOVEMENT_CONTROL_COMPONENT.data.yawInput = 0;
@@ -319,8 +174,10 @@ export async function start() {
         "Hud Render Phase",
         () => { },
         () => {
-            if (!engine.getAnimationState())
-                drawPauseScreen();
+            if (!engine.getAnimationState()) {
+                drawPauseScreen(renderContext, renderer);
+                drawControlGuide(controlBinder, renderContext, renderer);
+            }
         }
     );
 
@@ -386,7 +243,6 @@ export async function start() {
         debugInfoDisplaySystem
     );
 
-    const FIRE_CONTROL_COMPONENT = FireControl.createComponent({ fireIntent: false });
 
     const MC_POS = Position.createComponent({
         position: { x: 0, y: 0 },
@@ -478,45 +334,12 @@ export async function start() {
 
     const MAIN_CHARACTER = initMainCharacter();
 
-
-    MOUSE_CONTROLS["fire"] = {
-        keys: [0],
-        action: () => {
-            FIRE_CONTROL_COMPONENT.data.fireIntent = true;
-        },
-    };
-
-    KEYBOARD_CONTROLS["fire"] = {
-        keys: [" "],
-        action: () => {
-            FIRE_CONTROL_COMPONENT.data.fireIntent = true;
-        }
-    };
-
     const CURSOR_SCREEN_COMPONENT = ScreenPoint.createComponent({
         point: { x: 0, y: 0 }
     });
 
     canvasElement.addEventListener("mousemove", (event) => {
         CURSOR_SCREEN_COMPONENT.data.point = { x: event.offsetX, y: event.offsetY };
-    });
-
-    window.addEventListener("keydown", (event) => {
-        event.preventDefault();
-        KEY_STATES[event.key.toLowerCase()] = true;
-        activateHotkeyBindings();
-    });
-
-    window.addEventListener("keyup", (event) => {
-        KEY_STATES[event.key.toLowerCase()] = false;
-    });
-
-    window.addEventListener("mousedown", (event: MouseEvent) => {
-        MOUSE_KEY_STATES[event.button] = true;
-    });
-
-    canvasElement.addEventListener("mouseup", (event: MouseEvent) => {
-        MOUSE_KEY_STATES[event.button] = false;
     });
 
     engine.animate();
