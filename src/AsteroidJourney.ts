@@ -28,20 +28,19 @@ import {
     WorldPreRenderSystem
 } from "./systems";
 import { OccupiedChunkHighlightingSystem } from "./systems/render/debug/OccupiedChunkHighlightingSystem";
-import { WorldContext } from "./world/World";
+import { generateChunk, WorldContext } from "./world/World";
 import { Fluid } from "fluidengine";
 import { ECSEntityId } from "fluidengine";
 import { FluidEngine, FluidSystemPhase } from "fluidengine/internal";
-import { ChunkIndex, ChunkMeta, getChunkCenterFromIndex, Vector2, createChunk, ChunkState, Vec2, MathUtils, Transform } from "fluidengine";
+import { Vector2 } from "fluidengine";
 import { HealthBarRenderSystem } from "./systems/render/HealthBarRenderSystem";
 import { AsteroidDeathSystem } from "./systems/simulation/AsteroidDeathSystem";
 import { ParticleSystem } from "./systems/simulation/ParticleSystem";
 import { ProjectileDamageSystem } from "./systems/simulation/ProjectileDamageSystem";
-import { InterpolationRegistry, transformScaleLerpId } from "./animation/Interpolators";
+import { InterpolationRegistry } from "./animation/Interpolators";
 import { PropertyAnimationSystem } from "./systems/simulation/animation/PropertyAnimationSystem";
 import { ProjectileType, spawnProjectile } from "./Projectiles";
 import { calculateRectangleMomentOfInertia } from "./Utils";
-import { createSpriteEntity } from "./Sprites";
 import { Sprite } from "./components/SpriteComponent";
 import { RenderCenter } from "./components/RenderCenterComponent";
 import { Stats } from "./components/StatsComponent";
@@ -56,234 +55,24 @@ import { TargetPosition } from "./components/TargetPositionComponent";
 import { Position } from "./components/PositionComponent";
 import { Resolution } from "./components/ResolutionComponent";
 import { BoundingBox, createBoundingBox } from "./components/BoundingBoxComponent";
-import { Chunk } from "./components/ChunkComponent";
 import { ChunkOccupancy } from "./components/ChunkOccupancyComponent";
 import { ProjectileSource } from "./components/ProjectileSourceComponent";
 import { Viewport } from "./components/ViewportComponent";
 import { Health } from "./components/HealthComponent";
 import { Thruster } from "./components/ThrusterComponent";
 import { Physics } from "./components/PhysicsComponent";
-import { createPropertyAnimationsComponent } from "./components/PropertyAnimationComponent";
-import { Asteroid } from "./components/AsteroidComponent";
-import { LifeTime } from "./components/LifetimeComponent";
-import { Particle } from "./components/ParticleComponent";
-import AssetRepo, { SpriteKey } from "./Assets";
-import Assets from "./Assets";
-
-interface AsteroidCreationParameters {
-    position: Vec2;
-    rotation: number;
-    velocity: Vec2;
-    angularVelocity: number;
-    width: number;
-    options?: AsteroidCreationOptions;
-}
-
-interface AsteroidCreationOptions {
-    spriteImageKey?: SpriteKey;
-    density?: number;
-    health?: number;
-    deriveHealth?: (mass: number, size: number) => number;
-    damageAnimationScalePercent?: number;
-    damageAnimationDuration?: number;
-}
+import AssetRepo from "./Assets";
+import { drawControlGuide, drawPauseScreen } from "./Overlays";
+import { ControlBinder, registerDefaultBindings } from "./ControlBindings";
 
 export async function start() {
     const maxVelocity = 2.5 * 2.99792458
-    const boundedRandom = MathUtils.boundedRandom;
 
     const assetRepo = AssetRepo;
     const assets = await assetRepo.loadAssets();
     const sprites = assets.sprites;
 
-    function createAsteroid(
-        {
-            position,
-            rotation,
-            velocity,
-            angularVelocity,
-            width,
-            options = {}
-        }: AsteroidCreationParameters
-    ): ECSEntityId {
-        const
-            {
 
-                spriteImageKey = "asteroidImage",
-                density = 3.2,
-                health: optionalHealth,
-                deriveHealth = (mass: number, area: number) => mass * area,
-                damageAnimationScalePercent = 1.11,
-                damageAnimationDuration = 0.15
-
-            }: AsteroidCreationOptions = options;
-
-        const spriteImage = Assets.getSprite(spriteImageKey);
-        const aspectRatio = spriteImage.height / spriteImage.width;
-        const height = width * aspectRatio;
-        const area = width * height;
-        const mass = density * area;
-        const sizeTransform: Transform = { scale: 1 };
-        const health = optionalHealth ? optionalHealth : deriveHealth(mass, area);
-        const entity = createSpriteEntity(
-            Vector2.copy(position),
-            rotation,
-            spriteImageKey,
-            3,
-            {
-                x: width,
-                y: height
-            }
-        );
-        Fluid.addEntityComponents(entity,
-            Asteroid.createComponent({ area }),
-            Velocity.createComponent({
-                velocity,
-                angular: angularVelocity
-            }),
-            Physics.createComponent({
-                mass,
-                centerOfMassOffset: Vector2.zero(),
-                area: width * height,
-                momentOfInertia: calculateRectangleMomentOfInertia(mass, width, height)
-            }),
-            ChunkOccupancy.createComponent({ chunkKeys: new Set() }),
-            BoundingBox.createComponent(createBoundingBox({ width, height })),
-            Health.createComponent({ maxHealth: health, currentHealth: health, visible: true }),
-            createPropertyAnimationsComponent(
-                [
-                    [
-                        // Sprite animations
-                        Sprite,
-                        [
-                            // damaged animation
-                            {
-                                propertyName: 'transform',
-                                beginningValue: sizeTransform,
-                                endingValue: { scale: damageAnimationScalePercent },
-                                completed: true,
-                                duration: damageAnimationDuration,
-                                elapsed: 0,
-                                onComplete(entityId, propertyAnimationComponent) {
-                                    const transform = propertyAnimationComponent.animations.get(Sprite.getId().getSymbol()).get('transform');
-                                    transform.completed = true;
-                                },
-                                interpolationId: transformScaleLerpId
-                            }
-                        ]
-                    ]
-                ]
-            )
-        );
-        return entity;
-    }
-
-    function createAsteroidParticle(
-        position: Vec2,
-        velocity: Vec2,
-        rotation: number,
-        angularVelocity: number,
-        spawnTime: number,
-        lifeTime: number,
-        size: number
-    ): ECSEntityId {
-        const entityId = createSpriteEntity(
-            position,
-            rotation,
-            "asteroidImage",
-            3,
-            { x: size, y: size }
-        );
-        Fluid.addEntityComponents(entityId,
-            Velocity.createComponent({ velocity: velocity, angular: angularVelocity }),
-            LifeTime.createComponent({ lifeDuration: lifeTime, spawnTime }),
-            Particle.createComponent({})
-        )
-        return entityId;
-    }
-
-
-
-    function generateChunk(
-        worldContext: WorldContext,
-        chunkIndex: ChunkIndex,
-        chunkSize: number
-    ): ChunkMeta {
-        const chunkCenter = getChunkCenterFromIndex(chunkIndex[0], chunkIndex[1], chunkSize);
-        // Creates background
-        let chunkEntity = createSpriteEntity(
-            chunkCenter,
-            0,
-            "backgroundTileImage",
-            0,
-            {
-                x: chunkSize,
-                y: chunkSize
-            }
-
-        );
-
-        const halfChunkSize = chunkSize / 2;
-        const nSubDivision = 3;
-        const subGridSize = chunkSize / 3;
-        const asteroidProbability = 0.3,
-            sgap = asteroidProbability / (nSubDivision * nSubDivision);
-        const minVelocity = 0.08, maxVelocity = 0.32,
-            maxAngularVelocity = 1.2;
-        const minSize = 0.08,
-            maxSize = 0.40;
-        const minDensity = 1,
-            maxDensity = 2.2;
-
-        for (let i = 0; i < nSubDivision; i++)
-            for (let j = 0; j < nSubDivision; j++) {
-                if (Math.random() > sgap)
-                    continue;
-
-                let x = chunkCenter.x - halfChunkSize + i * subGridSize;
-                let y = chunkCenter.y - halfChunkSize + j * subGridSize;
-                let asteroidPosition = {
-                    x: boundedRandom(x, x + subGridSize),
-                    y: boundedRandom(y, y + subGridSize)
-                }
-                let asteroidRotation = Math.random() * 2 * Math.PI;
-                let asteroidVelocity = Vector2.scale(
-                    Vector2.normalize(
-                        {
-                            x: Math.random() - 0.5,
-                            y: Math.random() - 0.5
-                        }),
-                    boundedRandom(minVelocity, maxVelocity)
-                );
-                const angularVelocity = boundedRandom(minVelocity, maxAngularVelocity);
-                const size = boundedRandom(minSize, maxSize);
-                const density = boundedRandom(minDensity, maxDensity);
-                createAsteroid({
-                    position: asteroidPosition,
-                    velocity: asteroidVelocity,
-                    rotation: asteroidRotation,
-                    angularVelocity,
-                    width: size,
-                    options: {
-                        density
-                    }
-                });
-            }
-
-        const chunkMeta = createChunk(
-            chunkIndex,
-            chunkSize,
-            ChunkState.Loaded,
-            {
-                entitySymbolSet: new Set([chunkEntity.getSymbol()]),
-                lastAccessed: engine.getGameTime(),
-            }
-        );
-
-        const chunkComponent = Chunk.createComponent({ chunk: chunkMeta }, false);
-        Fluid.addEntityComponent(chunkEntity, chunkComponent);
-        return chunkMeta;
-    }
 
     const canvasElement = document.getElementById("canvas")! as HTMLCanvasElement;
     canvasElement.addEventListener("contextmenu", function (e) {
@@ -335,13 +124,10 @@ export async function start() {
     );
 
     const engine = new FluidEngine(Fluid.core(), 1024);
-    const worldContext: WorldContext = new WorldContext(engine, 1.024, 0.1, generateChunk);
+    const worldContext: WorldContext = new WorldContext(engine, 1.024, 0.1, (wC, cI, cS) => generateChunk(wC, cI, cS, engine));
     const clientContext: ClientContext = new ClientContext(engine, worldContext, renderer);
 
     clientContext.setZoomLevel(20);
-
-    const KEY_STATES = {
-    };
 
     const MOVEMENT_CONTROL_COMPONENT = MovementControl.createComponent({
         accelerationInput: {
@@ -351,163 +137,22 @@ export async function start() {
         yawInput: 0
     });
 
-    const KEYBOARD_CONTROLS = {
-        up: {
-            type: "movement",
-            keys: ["w"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.y += 1;
-            }
-        },
-        down: {
-            keys: ["s"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.y += -1;
-            }
-        },
-        left: {
-            keys: ["a"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.x += -1;
-            }
-        },
-        right: {
-            keys: ["d"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.accelerationInput.x += 1;
-            }
-        },
-        yawLeft: {
-            keys: ["q"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.yawInput -= 1;
-            }
-        },
-        yawRight: {
-            keys: ["e"],
-            action: () => {
-                MOVEMENT_CONTROL_COMPONENT.data.yawInput += 1;
-            }
-        }
-    };
+    const FIRE_CONTROL_COMPONENT = FireControl.createComponent({ fireIntent: false });
 
-    const MOUSE_KEY_STATES = {
+    const controlBinder = new ControlBinder().registerDefaultListeners();
 
-    }
-
-    const MOUSE_CONTROLS = {
-    }
-
-    const HOTKEYS = {
-        pause: {
-            keys: ["escape"],
-            action: () => {
-                engine.toggleAnimation();
-            }
-        },
-        eagle_eye_zoom: {
-            keys: ["v"],
-            action: () => clientContext.setZoomLevel(5)
-        },
-        reset_zoom: {
-            keys: ["x"],
-            action: () => clientContext.setZoomLevel(30)
-        },
-        decrease_zoom: {
-            keys: ["z"],
-            action: () => {
-                const decrement = 10;
-                const max = 100;
-                const min = decrement;
-                const next = (clientContext.getZoomLevel() - decrement);
-
-                clientContext.setZoomLevel(next < min ? max : next);
-            }
-        },
-        increase_zoom: {
-            keys: ["c"],
-            action: () => {
-                const increment = 10;
-                const max = 100;
-                const min = increment;
-                const next = (clientContext.getZoomLevel() + increment);
-
-                clientContext.setZoomLevel(next > max ? min : next);
-            }
-        },
-        slow_time: {
-            keys: ["["],
-            action: () => clientContext.setSimulationSpeed(clientContext.getSimulationSpeed() / 2)
-        },
-        speed_time: {
-            keys: ["]"],
-            action: () => clientContext.setSimulationSpeed(clientContext.getSimulationSpeed() * 2)
-        },
-        reset_simulation_speed: {
-            keys: ["-"],
-            action: () => clientContext.setSimulationSpeed(1)
-        },
-        toggle_debug_info: {
-            keys: ["f1"],
-            action: () => {
-                clientContext.displayDebugInfo = !clientContext.displayDebugInfo;
-            }
-        },
-        toggle_colliders: {
-            keys: ["f2"],
-            action: () => {
-                clientContext.displayBoundingBoxes = !clientContext.displayBoundingBoxes;
-            }
-        },
-        toggle_display_axes: {
-            keys: ["f3"],
-            action: () => {
-                clientContext.displayEntityAxes = !clientContext.displayEntityAxes;
-            }
-        },
-        toggle_display_chunks: {
-            keys: ["f4"],
-            action: () => {
-                clientContext.displayChunks = !clientContext.displayChunks;
-            }
-        }
-    }
-
-    function activateHotkeyBindings() {
-        for (const binding of Object.values(HOTKEYS)) {
-            if (binding.keys.some(k => KEY_STATES[k.toLowerCase()] === true))
-                binding.action();
-        }
-    }
-
-    function activateControlBindings() {
-        for (const controlBinding of Object.keys(KEYBOARD_CONTROLS).map(k => KEYBOARD_CONTROLS[k])) {
-            if (controlBinding.keys.some(k => KEY_STATES[k]))
-                controlBinding.action();
-        }
-        for (const controlBinding of Object.keys(MOUSE_CONTROLS).map(k => MOUSE_CONTROLS[k])) {
-            if (controlBinding.keys.some(k => MOUSE_KEY_STATES[k]))
-                controlBinding.action();
-        }
-    }
-
-    function drawPauseScreen() {
-        renderContext.save();
-
-        renderContext.globalAlpha = 0.5;
-        renderer.clear();
-        renderContext.globalAlpha = 0.5;
-        renderContext.font = "bold 256px calibri"
-        renderContext.fillStyle = "white";
-        renderContext.fillText("⏸", (renderer.getWidth() - 256) / 2, renderer.getHeight() / 2);
-
-        renderContext.restore();
-    }
+    registerDefaultBindings(
+        controlBinder,
+        engine,
+        clientContext,
+        MOVEMENT_CONTROL_COMPONENT,
+        FIRE_CONTROL_COMPONENT
+    );
 
     const simulationPhase = new FluidSystemPhase(
         "Simulation Phase",
         () => {
-            activateControlBindings();
+            controlBinder.activateControlBindings(true);
         },
         () => {
             MOVEMENT_CONTROL_COMPONENT.data.yawInput = 0;
@@ -529,8 +174,10 @@ export async function start() {
         "Hud Render Phase",
         () => { },
         () => {
-            if (!engine.getAnimationState())
-                drawPauseScreen();
+            if (!engine.getAnimationState()) {
+                drawPauseScreen(renderContext, renderer);
+                drawControlGuide(controlBinder, renderContext, renderer);
+            }
         }
     );
 
@@ -596,7 +243,6 @@ export async function start() {
         debugInfoDisplaySystem
     );
 
-    const FIRE_CONTROL_COMPONENT = FireControl.createComponent({ fireIntent: false });
 
     const MC_POS = Position.createComponent({
         position: { x: 0, y: 0 },
@@ -688,45 +334,12 @@ export async function start() {
 
     const MAIN_CHARACTER = initMainCharacter();
 
-
-    MOUSE_CONTROLS["fire"] = {
-        keys: [0],
-        action: () => {
-            FIRE_CONTROL_COMPONENT.data.fireIntent = true;
-        },
-    };
-
-    KEYBOARD_CONTROLS["fire"] = {
-        keys: [" "],
-        action: () => {
-            FIRE_CONTROL_COMPONENT.data.fireIntent = true;
-        }
-    };
-
     const CURSOR_SCREEN_COMPONENT = ScreenPoint.createComponent({
         point: { x: 0, y: 0 }
     });
 
     canvasElement.addEventListener("mousemove", (event) => {
         CURSOR_SCREEN_COMPONENT.data.point = { x: event.offsetX, y: event.offsetY };
-    });
-
-    window.addEventListener("keydown", (event) => {
-        event.preventDefault();
-        KEY_STATES[event.key.toLowerCase()] = true;
-        activateHotkeyBindings();
-    });
-
-    window.addEventListener("keyup", (event) => {
-        KEY_STATES[event.key.toLowerCase()] = false;
-    });
-
-    window.addEventListener("mousedown", (event: MouseEvent) => {
-        MOUSE_KEY_STATES[event.button] = true;
-    });
-
-    canvasElement.addEventListener("mouseup", (event: MouseEvent) => {
-        MOUSE_KEY_STATES[event.button] = false;
     });
 
     engine.animate();

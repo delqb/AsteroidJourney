@@ -19,3 +19,26 @@ export function calculateRectangleMomentOfInertia(
 export interface DeltaTimeProvider {
     (): number;
 }
+export function drawComplexText(renderContext: CanvasRenderingContext2D, x: number, y: number, content = [["Colored ", "red"], ["\n"], ["Text ", "Blue"], ["Test", "Green"]], lineSpacing = 2) {
+    const TEXT_METRICS = renderContext.measureText("A");
+    const FONT_HEIGHT = TEXT_METRICS.actualBoundingBoxAscent + TEXT_METRICS.actualBoundingBoxDescent;
+
+    let xOrig = x;
+    for (const piece of content) {
+        let text = piece[0];
+        let color = piece.length > 1 ? piece[1] : renderContext.fillStyle;
+        renderContext.fillStyle = color;
+        if (text.includes("\n")) {
+            for (const line of text.split("\n")) {
+                renderContext.fillText(line, x, y);
+                y += FONT_HEIGHT + lineSpacing;
+                x = xOrig;
+            }
+        }
+        else {
+            renderContext.fillText(text, x, y);
+            x += renderContext.measureText(text).width;
+        }
+    }
+    return y;
+}
