@@ -4889,7 +4889,6 @@ ${error}`);
     renderContext.font = "bold 256px calibri";
     renderContext.fillStyle = "white";
     renderContext.fillText("\u23F8", (renderer.getWidth() - 256) / 2, renderer.getHeight() / 2);
-    renderContext.fillText("Test", 10, 100);
     renderContext.restore();
   }
   function drawControlGuide(controlBinder, renderContext, renderer) {
