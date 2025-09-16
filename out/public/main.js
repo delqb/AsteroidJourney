@@ -4905,6 +4905,7 @@ ${error}`);
     );
     const textPairing = textLines.map((line) => [line, "white"]);
     drawComplexText(renderContext, 10, 20, textPairing, 4);
+    drawComplexText(renderContext, 10, 10, [["test", "white"]], 4);
     renderContext.restore();
   }
   var init_Overlays = __esm({
