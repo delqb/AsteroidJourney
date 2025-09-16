@@ -17,11 +17,17 @@ set "ROOT=%~dp0"
 SET "deploy_branch=deploy"
 
 
+:: Temp directory.
+SET "temp_directory=%ROOT%\temp"
+
 :: Runtime temporary script directory
-set "temp_scripts=%ROOT%\temp\console_scripts"
+set "temp_scripts=%temp_directory%\console_scripts"
 
 :: Deployment directory.
 SET "out_directory=%ROOT%\out"
+
+:: Deployment temporary staging directory
+SET "temp_out_directory=%temp_directory%\out"
 
 :: Deployment public directory.
 SET "public_directory=%out_directory%\public"
