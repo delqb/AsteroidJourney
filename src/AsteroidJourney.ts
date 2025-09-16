@@ -28,11 +28,11 @@ import {
     WorldPreRenderSystem
 } from "./systems";
 import { OccupiedChunkHighlightingSystem } from "./systems/render/debug/OccupiedChunkHighlightingSystem";
-import { WorldContext } from "./world/World";
+import { generateChunk, WorldContext } from "./world/World";
 import { Fluid } from "fluidengine";
 import { ECSEntityId } from "fluidengine";
 import { FluidEngine, FluidSystemPhase } from "fluidengine/internal";
-import { ChunkIndex, ChunkMeta, getChunkCenterFromIndex, Vector2, createChunk, ChunkState, Vec2, MathUtils, Transform } from "fluidengine";
+import { Vector2 } from "fluidengine";
 import { HealthBarRenderSystem } from "./systems/render/HealthBarRenderSystem";
 import { AsteroidDeathSystem } from "./systems/simulation/AsteroidDeathSystem";
 import { ParticleSystem } from "./systems/simulation/ParticleSystem";
@@ -56,41 +56,18 @@ import { TargetPosition } from "./components/TargetPositionComponent";
 import { Position } from "./components/PositionComponent";
 import { Resolution } from "./components/ResolutionComponent";
 import { BoundingBox, createBoundingBox } from "./components/BoundingBoxComponent";
-import { Chunk } from "./components/ChunkComponent";
 import { ChunkOccupancy } from "./components/ChunkOccupancyComponent";
 import { ProjectileSource } from "./components/ProjectileSourceComponent";
 import { Viewport } from "./components/ViewportComponent";
 import { Health } from "./components/HealthComponent";
 import { Thruster } from "./components/ThrusterComponent";
 import { Physics } from "./components/PhysicsComponent";
-import { createPropertyAnimationsComponent } from "./components/PropertyAnimationComponent";
-import { Asteroid } from "./components/AsteroidComponent";
-import { LifeTime } from "./components/LifetimeComponent";
-import { Particle } from "./components/ParticleComponent";
-import AssetRepo, { SpriteKey } from "./Assets";
-import Assets from "./Assets";
-
-interface AsteroidCreationParameters {
-    position: Vec2;
-    rotation: number;
-    velocity: Vec2;
-    angularVelocity: number;
-    width: number;
-    options?: AsteroidCreationOptions;
-}
-
-interface AsteroidCreationOptions {
-    spriteImageKey?: SpriteKey;
-    density?: number;
-    health?: number;
-    deriveHealth?: (mass: number, size: number) => number;
-    damageAnimationScalePercent?: number;
-    damageAnimationDuration?: number;
-}
+import AssetRepo from "./Assets";
+import { drawControlGuide, drawPauseScreen } from "./Overlays";
+import { ControlBinder, registerDefaultBindings } from "./ControlBindings";
 
 export async function start() {
     const maxVelocity = 2.5 * 2.99792458
-    const boundedRandom = MathUtils.boundedRandom;
 
     const assetRepo = AssetRepo;
     const assets = await assetRepo.loadAssets();
