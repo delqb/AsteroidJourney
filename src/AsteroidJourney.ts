@@ -175,7 +175,7 @@ export async function start() {
         () => { },
         () => {
             if (!engine.getAnimationState()) {
-                drawPauseScreen(renderContext, renderer);
+                drawPauseScreen(renderContext, renderer, engine.toggleAnimation.bind(engine));
                 drawControlGuide(controlBinder, renderContext, renderer);
             }
         }

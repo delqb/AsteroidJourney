@@ -4,16 +4,39 @@ import { drawComplexText } from "./Utils";
 
 export function drawPauseScreen(
     renderContext: CanvasRenderingContext2D,
-    renderer: CanvasRenderer
+    renderer: CanvasRenderer,
+    resume: () => void = null
 ) {
     renderContext.save();
 
     renderContext.globalAlpha = 0.5;
     renderer.clear();
     renderContext.globalAlpha = 0.5;
+
     renderContext.font = "bold 256px calibri"
     renderContext.fillStyle = "white";
     renderContext.fillText("⏸", (renderer.getWidth() - 256) / 2, renderer.getHeight() / 2);
+
+    const parentElement = renderer.canvasElement.parentElement;
+
+    const button = document.createElement('button');
+    button.textContent = '⏸';
+    button.style.font = 'bold 256px calibri';
+    button.style.color = 'white';
+    button.style.background = 'transparent';
+    button.style.border = 'none';
+    button.style.position = 'absolute';
+    button.style.top = '50%';
+    button.style.left = '50%';
+    button.style.transform = 'translate(-50%, -50%)';
+    parentElement.appendChild(button);
+
+    if (resume)
+        button.onclick = () => {
+            resume();
+            parentElement.removeChild(button);
+        }
+
 
     renderContext.restore();
 }
