@@ -50,6 +50,14 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
+::Copy manifest file to public directory
+ECHO Packaging manifest file.
+xcopy "%manifest_file%" "%public_directory%" /Y /Q
+if %errorlevel% neq 0 (
+    ECHO Packaging manifest file failed!
+    exit /b %errorlevel%
+)
+
 ECHO Packaged index file.
 ECHO.
 ::

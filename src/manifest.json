@@ -1,0 +1,8 @@
+{
+    "key": "asteroids",
+    "display_name": "Asteroid Journey",
+    "short_name": "AsteroidJourney",
+    "description": "",
+    "start_url": "./index.html",
+    "cover_image": "./assets/cover.png"
+}
