@@ -12,7 +12,7 @@
     }
   },
   "dependencies": {
-    "fluidengine": "../FluidEngine"
+    "fluidengine": "file:../FluidEngine"
   },
   "devDependencies": {
     "esbuild": "0.25.9",
