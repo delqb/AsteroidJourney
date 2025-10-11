@@ -1,0 +1,8 @@
+{
+    "key": "asteroids",
+    "display_name": "Asteroid Journey",
+    "short_name": "AsteroidJourney",
+    "description": "",
+    "start_url": "https://asteroids.playground.delbanna.com/index.html",
+    "cover_image": "https://asteroids.playground.delbanna.com/manifest.json"
+}

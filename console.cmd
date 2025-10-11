@@ -44,6 +44,9 @@ SET "assets_directory=%src_directory%\assets"
 :: Index file source path.
 SET "index_file=%src_directory%\index.html"
 
+:: Manifest file source path.
+SET "manifest_file=%src_directory%\manifest.json"
+
 :: Build output directory.
 SET "build_directory=%ROOT%\dist"
 
