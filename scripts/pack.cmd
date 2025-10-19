@@ -49,30 +49,19 @@ if %errorlevel% neq 0 (
     ECHO Packaging index file failed!
     exit /b %errorlevel%
 )
-
-::Copy manifest file to public directory
-ECHO Packaging manifest file.
-xcopy "%manifest_file%" "%public_directory%" /Y /Q
-if %errorlevel% neq 0 (
-    ECHO Packaging manifest file failed!
-    exit /b %errorlevel%
-)
-
 ECHO Packaged index file.
 ECHO.
-::
 
 
-::Copy wrangler config file to out directory
-ECHO Packaging wrangler config file.
-xcopy "%wrangler_config_file%" "%out_directory%" /Y /Q
-if %errorlevel% neq 0 (
-    ECHO Packaging wrangler config file failed!
+:: Copy deployment assets to out directory
+ECHO Packaging deployment assets.
+robocopy "%deployment_assets_directory%" "%out_directory%" /E
+if %errorlevel% GEQ 8 (
+    ECHO Packaging deployment assets failed!
     exit /b %errorlevel%
 )
-ECHO Packaged wrangler config file.
+ECHO Packaged deployment assets.
 ECHO.
-::
 
 
 ECHO.

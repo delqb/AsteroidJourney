@@ -53,6 +53,9 @@ SET "build_directory=%ROOT%\dist"
 :: Wrangler configuration file path.
 SET "wrangler_config_file=%ROOT%\wrangler.jsonc"
 
+:: Deployment assets directory; additional assets to be deployed alongside build files.
+SET "deployment_assets_directory=%ROOT%\deploy"
+
 ::
 ::
 ::
